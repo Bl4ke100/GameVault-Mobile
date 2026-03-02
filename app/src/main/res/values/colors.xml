@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="void_black">#000000</color>
+    <color name="surface_dark">#121212</color>
+    <color name="pure_white">#FFFFFF</color>
+    <color name="surface_light">#F5F5F5</color>
+
+    <color name="cyber_yellow">#FCEE0A</color>
+    <color name="neon_red">#FF003C</color>
+    <color name="neon_green">#39FF14</color>
+</resources>
