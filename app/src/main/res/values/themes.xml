@@ -18,6 +18,8 @@
         <item name="colorError">@color/neon_red</item>
         <item name="colorOnError">@color/pure_white</item>
 
+        <item name="android:fontFamily">@font/neo_sans_std_medium</item>
+
     </style>
 
     <style name="Theme.GameVault.Fullscreen">
