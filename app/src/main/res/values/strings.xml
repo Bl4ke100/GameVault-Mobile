@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Game Vault</string>
+    <string name="app_version">V 1.0.0</string>
 </resources>
