@@ -19,6 +19,7 @@
         <item name="colorOnError">@color/pure_white</item>
 
         <item name="android:fontFamily">@font/neo_sans_std_medium</item>
+        <item name="android:textColor">@color/surface_dark</item>
 
     </style>
 

@@ -4,6 +4,7 @@
         <item
             android:icon="@drawable/order"
             android:title="@string/side_nav_orders_title"
+            android:checked="true"
         />
         <item
             android:icon="@drawable/favorite"

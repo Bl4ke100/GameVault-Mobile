@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         app:menu="@menu/side_nav_menu"
         android:layout_gravity="start"
+        app:itemIconTint="@color/nav_item_color"
     />
 
 </androidx.drawerlayout.widget.DrawerLayout>
