@@ -10,4 +10,9 @@
     <string name="side_nav_settings_title">Settings</string>
     <string name="side_nav_login_title">Login</string>
     <string name="side_nav_logout_title">Logout</string>
+    <string name="bottom_nav_home_title">Home</string>
+    <string name="bottom_nav_shop_title">Shop</string>
+    <string name="bottom_nav_cart_title">Cart</string>
+    <string name="bottom_nav_library_title">Library</string>
+    <string name="search_hint">Search Here</string>
 </resources>

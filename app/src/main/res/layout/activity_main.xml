@@ -7,15 +7,61 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/pure_white">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:hint="@string/search_hint"
+                android:textSize="14sp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:drawableStart="@drawable/search"
+                android:background="@drawable/custom_search_bar"
+                />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/pure_white" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/pure_white"
+            app:itemGravity="center"
+            app:itemIconSize="33dp"
+            app:itemIconTint="@color/nav_item_color"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_bar"
+
+            />
+
+    </LinearLayout>
+
     <com.google.android.material.navigation.NavigationView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:headerLayout="@layout/side_nav_header"
-        app:menu="@menu/side_nav_menu"
         android:layout_gravity="start"
-        app:itemIconTint="@color/nav_item_color"
+        app:headerLayout="@layout/side_nav_header"
         app:itemIconSize="25dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:menu="@menu/side_nav_menu"
 
-    />
+        />
 
 </androidx.drawerlayout.widget.DrawerLayout>
