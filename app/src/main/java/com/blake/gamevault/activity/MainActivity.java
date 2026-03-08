@@ -1,6 +1,7 @@
 package com.blake.gamevault.activity;
 
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -66,9 +67,9 @@ public class MainActivity extends AppCompatActivity
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
-                }else{
+                } else {
                     finish();
                 }
             }
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         bottomNavigationView.setOnItemSelectedListener(this);
 
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
         }
 
@@ -89,52 +90,110 @@ public class MainActivity extends AppCompatActivity
 
         int itemId = item.getItemId();
 
-        if (itemId == R.id.side_nav_profile){
+        navigationView.setCheckedItem(-1);
+
+        if (itemId == R.id.side_nav_profile) {
+
             loadFragment(new ProfileFragment());
+            //navigationView.setCheckedItem(R.id.side_nav_profile);
+            navigationView.getMenu().findItem(R.id.side_nav_profile).setChecked(true);
+            clearBottomNavSelection();
 
-        }else if (itemId == R.id.side_nav_order){
+        } else if (itemId == R.id.side_nav_order) {
+
             loadFragment(new OrdersFragment());
+            navigationView.getMenu().findItem(R.id.side_nav_order).setChecked(true);
+            clearBottomNavSelection();
 
-        }else if (itemId == R.id.side_nav_wishlist){
+        } else if (itemId == R.id.side_nav_wishlist) {
+
             loadFragment(new WishlistFragment());
+            navigationView.getMenu().findItem(R.id.side_nav_wishlist).setChecked(true);
+            clearBottomNavSelection();
 
-        }else if (itemId == R.id.side_nav_Message){
+        } else if (itemId == R.id.side_nav_Message) {
+
             loadFragment(new MessageFragment());
+            navigationView.getMenu().findItem(R.id.side_nav_Message).setChecked(true);
+            clearBottomNavSelection();
 
-        }else if (itemId == R.id.side_nav_settings){
+        } else if (itemId == R.id.side_nav_settings) {
+
             loadFragment(new SettingsFragment());
+            navigationView.getMenu().findItem(R.id.side_nav_settings).setChecked(true);
+            clearBottomNavSelection();
 
-        }else if (itemId == R.id.side_nav_login){
+        } else if (itemId == R.id.side_nav_login) {
 
-        }else if (itemId == R.id.side_nav_logout){
+        } else if (itemId == R.id.side_nav_logout) {
 
-        }else if (itemId == R.id.bottom_nav_home){
+        } else if (itemId == R.id.bottom_nav_home) {
+
             loadFragment(new HomeFragment());
+            //bottomNavigationView.setSelectedItemId(R.id.bottom_nav_home);
+            restoreBottomNavSelection();
+            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_home).setChecked(true);
+            clearSideNavSelection();
 
-        }else if (itemId == R.id.bottom_nav_shop){
+        } else if (itemId == R.id.bottom_nav_shop) {
+
             loadFragment(new ShopFragment());
+            restoreBottomNavSelection();
+            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_shop).setChecked(true);
+            clearSideNavSelection();
 
-        }else if (itemId == R.id.bottom_nav_cart){
+        } else if (itemId == R.id.bottom_nav_cart) {
+
             loadFragment(new CartFragment());
+            restoreBottomNavSelection();
+            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_cart).setChecked(true);
+            clearSideNavSelection();
 
-        }else if (itemId == R.id.bottom_nav_library){
+        } else if (itemId == R.id.bottom_nav_library) {
+
             loadFragment(new LibraryFragment());
-
+            restoreBottomNavSelection();
+            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_library).setChecked(true);
+            clearSideNavSelection();
 
         }
 
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         }
 
         return true;
     }
 
-    private void loadFragment(Fragment fragment){
+    private void loadFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragmentContainer, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void clearBottomNavSelection() {
+        bottomNavigationView.setItemActiveIndicatorEnabled(false);
+        Menu menu = bottomNavigationView.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setCheckable(false);
+        }
+    }
+
+    private void restoreBottomNavSelection() {
+        bottomNavigationView.setItemActiveIndicatorEnabled(true);
+        Menu menu = bottomNavigationView.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setCheckable(true);
+        }
+    }
+
+    private void clearSideNavSelection() {
+        Menu menu = navigationView.getMenu();
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setChecked(false);
+        }
     }
 
 

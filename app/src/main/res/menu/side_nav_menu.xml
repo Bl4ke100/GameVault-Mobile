@@ -6,30 +6,35 @@
             android:icon="@drawable/user"
             android:title="@string/side_nav_profile_title"
             android:visible="true"
+            android:checkable="true"
             />
         <item
             android:id="@+id/side_nav_order"
             android:icon="@drawable/order"
             android:title="@string/side_nav_orders_title"
-            android:visible="false"
+            android:visible="true"
+            android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_wishlist"
             android:icon="@drawable/favorite"
             android:title="@string/side_nav_wishlist_title"
-            android:visible="false"
+            android:visible="true"
+            android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_Message"
             android:icon="@drawable/inbox"
             android:title="@string/side_nav_message_title"
-            android:visible="false"
+            android:visible="true"
+            android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_settings"
             android:icon="@drawable/settings"
             android:title="@string/side_nav_settings_title"
-            android:visible="false"
+            android:visible="true"
+            android:checkable="true"
         />
     </group>
 
@@ -38,12 +43,14 @@
             android:id="@+id/side_nav_login"
             android:icon="@drawable/login"
             android:title="@string/side_nav_login_title"
+            android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_logout"
             android:icon="@drawable/logout_solid"
             android:title="@string/side_nav_logout_title"
-            android:visible="false"
+            android:visible="true"
+            android:checkable="true"
         />
     </group>
 </menu>
