@@ -1,33 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group>
+    <group android:id="@+id/side_nav_group_main">
         <item
+            android:id="@+id/side_nav_profile"
+            android:icon="@drawable/user"
+            android:title="@string/side_nav_profile_title"
+            android:visible="true"
+            />
+        <item
+            android:id="@+id/side_nav_order"
             android:icon="@drawable/order"
             android:title="@string/side_nav_orders_title"
-            android:checked="true"
+            android:visible="false"
         />
         <item
+            android:id="@+id/side_nav_wishlist"
             android:icon="@drawable/favorite"
             android:title="@string/side_nav_wishlist_title"
+            android:visible="false"
         />
         <item
+            android:id="@+id/side_nav_Message"
             android:icon="@drawable/inbox"
             android:title="@string/side_nav_message_title"
+            android:visible="false"
         />
         <item
+            android:id="@+id/side_nav_settings"
             android:icon="@drawable/settings"
             android:title="@string/side_nav_settings_title"
+            android:visible="false"
         />
     </group>
 
-    <group>
+    <group android:id="@+id/side_nav_group_auth">
         <item
+            android:id="@+id/side_nav_login"
             android:icon="@drawable/login"
             android:title="@string/side_nav_login_title"
         />
         <item
+            android:id="@+id/side_nav_logout"
             android:icon="@drawable/logout_solid"
             android:title="@string/side_nav_logout_title"
+            android:visible="false"
         />
     </group>
 </menu>
