@@ -10,11 +10,14 @@
         <item name="colorSurface">@color/surface_dark</item>
         <item name="colorOnSurface">@color/pure_white</item>
 
-        <item name="android:statusBarColor">@color/void_black</item>
+        <item name="android:statusBarColor">@color/pure_white</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">@color/void_black</item>
 
         <item name="colorError">@color/neon_red</item>
         <item name="colorOnError">@color/pure_white</item>
+
+
 
     </style>
 

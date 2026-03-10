@@ -10,8 +10,8 @@
         <item name="colorSurface">@color/surface_light</item>
         <item name="colorOnSurface">@color/void_black</item>
 
-        <item name="android:statusBarColor">@color/pure_white</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/void_black</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:navigationBarColor">@color/pure_white</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="O_MR1">true</item>
 
@@ -20,6 +20,8 @@
 
         <item name="android:fontFamily">@font/neo_sans_std_medium</item>
         <item name="android:textColor">@color/surface_dark</item>
+
+
 
     </style>
 
