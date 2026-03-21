@@ -1,5 +1,6 @@
 package com.blake.gamevault.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -124,6 +125,8 @@ public class MainActivity extends AppCompatActivity
             clearBottomNavSelection();
 
         } else if (itemId == R.id.side_nav_login) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
 
         } else if (itemId == R.id.side_nav_logout) {
 

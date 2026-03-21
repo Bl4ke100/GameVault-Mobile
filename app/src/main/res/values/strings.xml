@@ -38,4 +38,6 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="or_sign_up_with">or sign up with</string>
     <string name="already_have_an_account">Already have an account?</string>
+    <string name="no_account">No account?</string>
+    <string name="create_one">Create one</string>
 </resources>
