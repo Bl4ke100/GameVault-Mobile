@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152244395979",
+    "project_id": "gamevault-ffe65",
+    "storage_bucket": "gamevault-ffe65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152244395979:android:3e7695a0b3da6a101b204e",
+        "android_client_info": {
+          "package_name": "com.blake.gamevault"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPyzIqqKnTybHDlLpru7H91mgONQKby3U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

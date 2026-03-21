@@ -11,20 +11,39 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.blake.gamevault.R;
+import com.blake.gamevault.databinding.ActivityLoginBinding;
+import com.blake.gamevault.databinding.ActivityRegisterBinding;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
+
+    private ActivityRegisterBinding binding;
+    private FirebaseAuth firebaseAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
 
-        findViewById(R.id.toSignIn).setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
+        binding = ActivityRegisterBinding.inflate(getLayoutInflater());
+
+        setContentView(binding.getRoot());
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        binding.toSignIn.setOnClickListener(view -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+        });
+
+        binding.btnCreateAccount.setOnClickListener(View -> {
+            String username = binding.username.getText().toString().trim();
+            String email = binding.email.getText().toString().trim();
+            String password = binding.password.getText().toString().trim();
+            String confirmPassword = binding.confirmPassword.getText().toString().trim();
+            boolean termsAccepted = binding.cbTerms.isChecked();
+
+
 
         });
 
