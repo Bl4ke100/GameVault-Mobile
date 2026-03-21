@@ -117,7 +117,7 @@
             app:startIconTint="?attr/colorOnSurfaceVariant"
             app:endIconMode="password_toggle"
             app:endIconTint="?attr/colorOnSurfaceVariant"
-            app:helperText="At least 8 characters">
+            app:helperText="At least 6 characters">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"

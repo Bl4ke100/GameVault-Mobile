@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,6 +24,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.blake.gamevault.R;
+import com.blake.gamevault.databinding.ActivityMainBinding;
+import com.blake.gamevault.databinding.SideNavHeaderBinding;
 import com.blake.gamevault.fragment.CartFragment;
 import com.blake.gamevault.fragment.HomeFragment;
 import com.blake.gamevault.fragment.LibraryFragment;
@@ -40,6 +43,8 @@ import com.google.android.material.navigation.NavigationView;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, NavigationBarView.OnItemSelectedListener {
 
+    private ActivityMainBinding binding;
+    private SideNavHeaderBinding sideNavHeaderBinding;
     private DrawerLayout drawerLayout;
     private MaterialToolbar toolbar;
     private NavigationView navigationView;
@@ -50,12 +55,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        drawerLayout = findViewById(R.id.drawerLayout);
-        toolbar = findViewById(R.id.toolBar);
-        navigationView = findViewById(R.id.sideNav);
-        bottomNavigationView = findViewById(R.id.bottomNav);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        View headerView = binding.sideNav.getHeaderView(0);
+
+        sideNavHeaderBinding = SideNavHeaderBinding.bind(headerView);
+        
+        drawerLayout = binding.drawerLayout;
+        toolbar = binding.toolBar;
+        navigationView = binding.sideNav;
+        bottomNavigationView = binding.bottomNav;
 
         setSupportActionBar(toolbar);
 

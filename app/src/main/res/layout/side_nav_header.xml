@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
+        android:id="@+id/header_pfp"
         android:layout_width="100dp"
         android:layout_height="100dp"
         tools:srcCompat="@mipmap/gv_launcher_foreground"
@@ -13,17 +14,19 @@
         />
 
     <TextView
+        android:id="@+id/header_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nigger"
+        android:text="User"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="125dp"
         />
 
     <TextView
+        android:id="@+id/header_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="nigger@gmail.com"
+        android:text="User@gmail.com"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="20dp"
         android:layout_marginStart="125dp"

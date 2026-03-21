@@ -30,11 +30,18 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
+
+        if (getIntent().hasExtra("email")) {
+            binding.emailInput.setText(getIntent().getStringExtra("email"));
+            binding.pwInput.setText(getIntent().getStringExtra("password"));
+        }
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -65,17 +72,12 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (password.length() < 8) {
-                binding.pwInput.setError("Password must be at least 8 characters");
+            if (password.length() < 6) {
+                binding.pwInput.setError("Password must be at least 6 characters");
                 binding.pwInput.requestFocus();
                 return;
             }
 
-//            if (!isPasswordValid(password)){
-//                binding.pwInput.setError("Password must contain at least one uppercase, lowercase, digit, and symbol");
-//                binding.pwInput.requestFocus();
-//                return;
-//            }
 
 
 
@@ -103,16 +105,4 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-//    private boolean isPasswordValid(String password) {
-//        boolean hasUpper = false, hasLower = false, hasDigit = false, hasSymbol = false;
-//
-//        for (char c : password.toCharArray()) {
-//            if (Character.isUpperCase(c)) hasUpper = true;
-//            else if (Character.isLowerCase(c)) hasLower = true;
-//            else if (Character.isDigit(c)) hasDigit = true;
-//            else hasSymbol = true;
-//        }
-//
-//        return hasUpper && hasLower && hasDigit && hasSymbol;
-//    }
 }
