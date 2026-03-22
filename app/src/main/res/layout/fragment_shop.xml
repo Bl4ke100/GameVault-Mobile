@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".fragment.ShopFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_catView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Shop"
-        android:gravity="center" />
-
+        android:background="?attr/colorOnPrimary"
+        android:padding="8dp"
+        />
 </FrameLayout>
