@@ -35,10 +35,15 @@ import com.blake.gamevault.fragment.ProfileFragment;
 import com.blake.gamevault.fragment.SettingsFragment;
 import com.blake.gamevault.fragment.ShopFragment;
 import com.blake.gamevault.fragment.WishlistFragment;
+import com.blake.gamevault.model.User;
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, NavigationBarView.OnItemSelectedListener {
@@ -49,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     private MaterialToolbar toolbar;
     private NavigationView navigationView;
     private BottomNavigationView bottomNavigationView;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore firebaseFirestore;
 
     EditText searchTextInput;
 
@@ -62,7 +69,7 @@ public class MainActivity extends AppCompatActivity
         View headerView = binding.sideNav.getHeaderView(0);
 
         sideNavHeaderBinding = SideNavHeaderBinding.bind(headerView);
-        
+
         drawerLayout = binding.drawerLayout;
         toolbar = binding.toolBar;
         navigationView = binding.sideNav;
@@ -94,6 +101,39 @@ public class MainActivity extends AppCompatActivity
             loadFragment(new HomeFragment());
         }
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
+        //Load user data
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            String uid = currentUser.getUid();
+            firebaseFirestore.collection("users").document(currentUser.getUid()).get()
+                    .addOnSuccessListener(ds ->{
+
+                        if (ds.exists()){
+                        User user = ds.toObject(User.class);
+                        sideNavHeaderBinding.headerUsername.setText(user.getUsername());
+                        sideNavHeaderBinding.headerEmail.setText(user.getEmail());
+
+                        Glide.with(MainActivity.this)
+                                .load(user.getProfilePicUrl())
+                                .circleCrop()
+                                .into(sideNavHeaderBinding.headerPfp);
+                        }
+
+                    } );
+
+            navigationView.getMenu().findItem(R.id.side_nav_profile).setVisible(true);
+            navigationView.getMenu().findItem(R.id.side_nav_order).setVisible(true);
+            navigationView.getMenu().findItem(R.id.side_nav_wishlist).setVisible(true);
+            navigationView.getMenu().findItem(R.id.side_nav_Message).setVisible(true);
+            navigationView.getMenu().findItem(R.id.side_nav_login).setVisible(false);
+            navigationView.getMenu().findItem(R.id.side_nav_logout).setVisible(true);
+
+        }
+
+
     }
 
 
@@ -107,7 +147,6 @@ public class MainActivity extends AppCompatActivity
         if (itemId == R.id.side_nav_profile) {
 
             loadFragment(new ProfileFragment());
-            //navigationView.setCheckedItem(R.id.side_nav_profile);
             navigationView.getMenu().findItem(R.id.side_nav_profile).setChecked(true);
             clearBottomNavSelection();
 
@@ -141,10 +180,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (itemId == R.id.side_nav_logout) {
 
+            firebaseAuth.signOut();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+
         } else if (itemId == R.id.bottom_nav_home) {
 
             loadFragment(new HomeFragment());
-            //bottomNavigationView.setSelectedItemId(R.id.bottom_nav_home);
             restoreBottomNavSelection();
             bottomNavigationView.getMenu().findItem(R.id.bottom_nav_home).setChecked(true);
             clearSideNavSelection();
@@ -158,17 +201,31 @@ public class MainActivity extends AppCompatActivity
 
         } else if (itemId == R.id.bottom_nav_cart) {
 
-            loadFragment(new CartFragment());
-            restoreBottomNavSelection();
-            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_cart).setChecked(true);
-            clearSideNavSelection();
+            if (firebaseAuth.getCurrentUser() == null){
+                Toast.makeText(MainActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }else {
+                loadFragment(new CartFragment());
+                restoreBottomNavSelection();
+                bottomNavigationView.getMenu().findItem(R.id.bottom_nav_cart).setChecked(true);
+                clearSideNavSelection();
+            }
 
         } else if (itemId == R.id.bottom_nav_library) {
 
-            loadFragment(new LibraryFragment());
-            restoreBottomNavSelection();
-            bottomNavigationView.getMenu().findItem(R.id.bottom_nav_library).setChecked(true);
-            clearSideNavSelection();
+            if (firebaseAuth.getCurrentUser() == null){
+                Toast.makeText(MainActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }else {
+                loadFragment(new LibraryFragment());
+                restoreBottomNavSelection();
+                bottomNavigationView.getMenu().findItem(R.id.bottom_nav_library).setChecked(true);
+                clearSideNavSelection();
+            }
 
         }
 

@@ -40,4 +40,6 @@
     <string name="already_have_an_account">Already have an account?</string>
     <string name="no_account">No account?</string>
     <string name="create_one">Create one</string>
+    <string name="user_profile_pic">User Profile Pic</string>
+    <string name="user">User</string>
 </resources>

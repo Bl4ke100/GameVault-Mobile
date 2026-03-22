@@ -5,28 +5,28 @@
             android:id="@+id/side_nav_profile"
             android:icon="@drawable/user"
             android:title="@string/side_nav_profile_title"
-            android:visible="true"
+            android:visible="false"
             android:checkable="true"
             />
         <item
             android:id="@+id/side_nav_order"
             android:icon="@drawable/order"
             android:title="@string/side_nav_orders_title"
-            android:visible="true"
+            android:visible="false"
             android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_wishlist"
             android:icon="@drawable/favorite"
             android:title="@string/side_nav_wishlist_title"
-            android:visible="true"
+            android:visible="false"
             android:checkable="true"
         />
         <item
             android:id="@+id/side_nav_Message"
             android:icon="@drawable/inbox"
             android:title="@string/side_nav_message_title"
-            android:visible="true"
+            android:visible="false"
             android:checkable="true"
         />
         <item
@@ -44,13 +44,15 @@
             android:icon="@drawable/login"
             android:title="@string/side_nav_login_title"
             android:checkable="true"
+            android:visible="true"
         />
         <item
             android:id="@+id/side_nav_logout"
             android:icon="@drawable/logout_solid"
             android:title="@string/side_nav_logout_title"
-            android:visible="true"
+            android:visible="false"
             android:checkable="true"
+
         />
     </group>
 </menu>
