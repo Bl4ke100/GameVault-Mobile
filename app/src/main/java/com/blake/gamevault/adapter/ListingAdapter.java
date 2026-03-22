@@ -3,8 +3,6 @@ package com.blake.gamevault.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,12 +16,12 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
+public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHolder> {
 
     private List<Category> categories;
     private OnCategoryClickListener listener;
 
-    public CategoryAdapter(List<Category> categories, OnCategoryClickListener listener) {
+    public ListingAdapter(List<Category> categories, OnCategoryClickListener listener) {
 
         this.categories = categories;
         this.listener = listener;
@@ -31,7 +29,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     @NonNull
     @Override
-    public CategoryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ListingAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_category, parent, false);
 
@@ -39,7 +37,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CategoryAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ListingAdapter.ViewHolder holder, int position) {
         Category category = categories.get(position);
         holder.catName.setText(category.getName());
         Glide.with(holder.itemView.getContext())

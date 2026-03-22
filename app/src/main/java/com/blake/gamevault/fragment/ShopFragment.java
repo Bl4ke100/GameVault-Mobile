@@ -47,16 +47,16 @@ public class ShopFragment extends Fragment {
         binding.recyclerCatView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-//        Category category1 = new Category("cat1","Action","");
-//        Category category2 = new Category("cat2","Adventure","");
+//
+//        Category category8 = new Category("cat8","Strategy","");
+//        Category category9 = new Category("cat9","Puzzle","");
 //        Category category3 = new Category("cat3","Shooting","");
 //        Category category4 = new Category("cat4","Horror","");
 //        Category category5 = new Category("cat5","RPG","");
 //        Category category6 = new Category("cat6","Arcade","");
 //        Category category7 = new Category("cat7","Shooting","");
 //
-//        List<Category> cats = List.of(category1, category2, category3, category4, category5, category6, category7);
+//        List<Category> cats = List.of(category8, category9);
 //
 //        WriteBatch batch = db.batch();
 //
@@ -82,7 +82,11 @@ public class ShopFragment extends Fragment {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         QuerySnapshot result = task.getResult();
                         List<Category> categories = result.toObjects(Category.class);
-                        adapter = new CategoryAdapter(categories);
+                        adapter = new CategoryAdapter(categories, category -> {
+
+
+
+                        });
                         binding.recyclerCatView.setAdapter(adapter);
                     }
                 });
