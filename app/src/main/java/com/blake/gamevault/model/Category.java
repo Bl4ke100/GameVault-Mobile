@@ -10,4 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Category {
+    private String catId;
+    private String name;
+    private String imageUrl;
 }
