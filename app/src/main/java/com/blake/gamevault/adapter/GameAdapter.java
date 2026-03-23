@@ -10,19 +10,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blake.gamevault.R;
-import com.blake.gamevault.model.Category;
 import com.blake.gamevault.model.Game;
 import com.blake.gamevault.util.CardFlipAnimator;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHolder> {
+public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
 
     private List<Game> games;
     private OnGameClickListener listener;
 
-    public ListingAdapter(List<Game> games, OnGameClickListener listener) {
+    public GameAdapter(List<Game> games, OnGameClickListener listener) {
 
         this.games = games;
         this.listener = listener;
@@ -30,7 +29,7 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
 
     @NonNull
     @Override
-    public ListingAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public GameAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.game_listing, parent, false);
 
@@ -38,7 +37,7 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListingAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull GameAdapter.ViewHolder holder, int position) {
         Game game = games.get(position);
 //        holder.gameTitle.setText(game.getTitle());
 //        holder.gamePrice.setText(game.getPrice()+"");

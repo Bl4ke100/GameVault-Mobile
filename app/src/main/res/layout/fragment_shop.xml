@@ -37,7 +37,7 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreateAccount"
+            android:id="@+id/btnSeeAllGames"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:letterSpacing="0.06"

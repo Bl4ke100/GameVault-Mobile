@@ -20,6 +20,8 @@ public class Game {
     private String categoryId;
     private String developerId;
     private String publisherId;
+    private String posterUrl;
     private List<String> images;
     private int stock;
+    private boolean status;
 }
