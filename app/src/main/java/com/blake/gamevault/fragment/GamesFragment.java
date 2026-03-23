@@ -2,11 +2,13 @@ package com.blake.gamevault.fragment;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import com.blake.gamevault.adapter.ListingAdapter;
 import com.blake.gamevault.databinding.FragmentGamesBinding;
 import com.blake.gamevault.model.Game;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -202,6 +205,7 @@ public class GamesFragment extends Fragment {
         if (catId != null){
             db.collection("games")
                     .whereEqualTo("categoryId", catId)
+                    .orderBy("title", Query.Direction.ASCENDING)
                     .get()
                     .addOnSuccessListener(ds -> {
                         if (!ds.isEmpty()) {
@@ -209,14 +213,23 @@ public class GamesFragment extends Fragment {
 
                             adapter = new ListingAdapter(games, game -> {
 
+
+
                             });
 
                             binding.recyclerGameView.setAdapter(adapter);
 
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("Firestore", "Error"+e.getMessage());
+                            Toast.makeText(getContext(), "Check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
         }else {
             db.collection("games")
+                    .orderBy("title", Query.Direction.ASCENDING)
                     .get()
                     .addOnSuccessListener(ds -> {
                         if (!ds.isEmpty()) {
@@ -229,7 +242,20 @@ public class GamesFragment extends Fragment {
                             binding.recyclerGameView.setAdapter(adapter);
 
                         }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("Firestore", "Error"+e.getMessage());
+                            Toast.makeText(getContext(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
                     });
         }
+
+        getActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
 }

@@ -39,8 +39,8 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull GameAdapter.ViewHolder holder, int position) {
         Game game = games.get(position);
-//        holder.gameTitle.setText(game.getTitle());
-//        holder.gamePrice.setText(game.getPrice()+"");
+        holder.gameTitle.setText(game.getTitle());
+        holder.gamePrice.setText("LKR " + game.getPrice()+"0");
         Glide.with(holder.itemView.getContext())
                 .load(game.getPosterUrl())
                 .into(holder.gameImage);
@@ -66,8 +66,8 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             gameImage = itemView.findViewById(R.id.gameImage);
-//            gameTitle = itemView.findViewById(R.id.gameName);
-//            gamePrice = itemView.findViewById(R.id.gamePrice);
+            gameTitle = itemView.findViewById(R.id.gameName);
+            gamePrice = itemView.findViewById(R.id.gamePrice);
         }
     }
 
