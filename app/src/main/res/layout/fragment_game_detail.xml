@@ -1,14 +1,559 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground"
     tools:context=".fragment.GameDetailFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+
+
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_above="@id/bottomActions">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Image Slider -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="320dp">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/game_image_slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+
+
+                <!-- Bottom fade -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/gradient_poster_fade" />
+
+
+
+
+                <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                    android:id="@+id/dots_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+
+                    app:dotsColor="?attr/colorPrimary"
+                    app:dotsCornerRadius="8dp"
+                    app:dotsSize="9dp"
+                    app:dotsSpacing="4dp"
+                    app:dotsWidthFactor="2.5"
+                    app:selectedDotColor="?attr/colorSurface"
+                    app:progressMode="true"
+                    />
+
+
+
+                <!-- Dot Indicator -->
+                <LinearLayout
+                    android:id="@+id/sliderDots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal" />
+
+            </FrameLayout>
+
+            <!-- Thumbnail Row -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp">
+
+                <LinearLayout
+                    android:id="@+id/thumbnailRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical" />
+
+            </HorizontalScrollView>
+
+            <!-- Content -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="16dp">
+
+                <!-- Title + Stock Badge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/gameName"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Game Title"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:lineSpacingMultiplier="1.1" />
+
+                    <TextView
+                        android:id="@+id/detailStock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/bg_stock_badge"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
+                        android:text="In Stock"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Rating Row -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="14dp">
+
+                    <RatingBar
+                        android:id="@+id/detailRating"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:rating="4.5"
+                        android:isIndicator="true" />
+
+                    <TextView
+                        android:id="@+id/detailRatingCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(2.4k reviews)"
+                        android:textSize="12sp"
+                        android:textColor="@color/surface_dark"
+                        android:layout_marginStart="6dp" />
+
+                </LinearLayout>
+
+                <!-- Price Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:id="@+id/gamePrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LKR 0.00"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+
+
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/surface_light"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Info Grid -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="20dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DEVELOPER"
+                            android:textSize="10sp"
+                            android:textColor="@color/surface_dark"
+                            android:letterSpacing="0.12"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/detailDeveloper"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:gravity="center" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_light" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="RELEASED"
+                            android:textSize="10sp"
+                            android:textColor="@color/surface_dark"
+                            android:letterSpacing="0.12"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/detailReleaseYear"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:gravity="center" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/surface_light" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="GENRE"
+                            android:textSize="10sp"
+                            android:textColor="@color/surface_dark"
+                            android:letterSpacing="0.12"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/detailGenre"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:gravity="center" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/surface_light"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Description -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ABOUT"
+                    android:textSize="10sp"
+                    android:textColor="@color/surface_dark"
+                    android:letterSpacing="0.12"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/detailDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Game description goes here."
+                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:lineSpacingMultiplier="1.6"
+                    android:maxLines="4"
+                    android:ellipsize="end"
+                    android:layout_marginBottom="4dp" />
+
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/surface_light"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"/>
+
+                <!-- Availability -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AVAILABILITY"
+                        android:textSize="10sp"
+                        android:textColor="@color/surface_dark"
+                        android:letterSpacing="0.12" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/detailStockCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12 units left"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+
+                </LinearLayout>
+
+                <!-- Quantity -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="QUANTITY"
+                        android:textSize="10sp"
+                        android:textColor="@color/surface_dark"
+                        android:letterSpacing="0.12" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="24dp"
+                        app:cardBackgroundColor="?attr/colorPrimary"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="4dp">
+
+                            <ImageButton
+                                android:id="@+id/btnDecrease"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@drawable/remove"
+                                app:tint="?attr/colorOnPrimary" />
+
+                            <TextView
+                                android:id="@+id/detailQuantity"
+                                android:layout_width="36dp"
+                                android:layout_height="wrap_content"
+                                android:text="1"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorOnPrimary"
+                                android:gravity="center" />
+
+                            <ImageButton
+                                android:id="@+id/btnIncrease"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:src="@drawable/add"
+                                app:tint="?attr/colorOnPrimary" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/surface_light"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="8dp"/>
+
+                <!-- Similar Games -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SIMILAR GAMES"
+                    android:textSize="10sp"
+                    android:textColor="@color/surface_dark"
+                    android:letterSpacing="0.12"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_catView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:clipToPadding="false"
+                    android:paddingBottom="8dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Back Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="?attr/colorOnPrimary"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            >
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="?attr/colorPrimary"
+                android:paddingStart="8dp"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Wishlist Button -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnWishlist"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="?attr/colorOnPrimary"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/favorite_solid"
+                app:tint="?attr/colorPrimary" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+
+
+    <!-- Bottom Action Buttons -->
+    <LinearLayout
+        android:id="@+id/bottomActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:background="?android:attr/windowBackground">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddToCart"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Add to Cart"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            app:backgroundTint="@color/surface_light"
+            app:cornerRadius="12dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1.5dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBuyNow"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_weight="1"
+            android:text="Buy Now"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
+            app:cornerRadius="12dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

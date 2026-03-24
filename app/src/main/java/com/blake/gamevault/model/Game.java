@@ -24,4 +24,5 @@ public class Game {
     private List<String> images;
     private int stock;
     private boolean status;
+    private float rating;
 }

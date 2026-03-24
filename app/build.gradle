@@ -51,5 +51,6 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     implementation libs.glide
+    implementation(libs.dotsindicator)
 
 }
