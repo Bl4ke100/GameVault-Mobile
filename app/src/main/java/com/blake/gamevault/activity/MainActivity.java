@@ -136,6 +136,24 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void setStatusBarColor() {
+        int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+
+        // Get the window controller
+        androidx.core.view.WindowInsetsControllerCompat windowController =
+                androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+
+        if (currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_NO) {
+            // Light mode: Make status bar white and icons dark
+            getWindow().setStatusBarColor(getResources().getColor(R.color.pure_white));
+            windowController.setAppearanceLightStatusBars(true);
+        } else {
+            // Dark mode: Make status bar black and icons light
+            getWindow().setStatusBarColor(getResources().getColor(R.color.void_black));
+            windowController.setAppearanceLightStatusBars(false);
+        }
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

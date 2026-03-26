@@ -22,11 +22,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class GamesFragment extends Fragment {
@@ -196,6 +203,72 @@ public class GamesFragment extends Fragment {
 //            }
 //        });
 
+
+//        db.collection("games").get().addOnSuccessListener(queryDocumentSnapshots -> {
+//            WriteBatch batch = db.batch();
+//
+//            // Create the attributes array
+//            List<Map<String, Object>> attributes = new ArrayList<>();
+//            Map<String, Object> platform = new HashMap<>();
+//            platform.put("name", "Platform");
+//            platform.put("type", "text");
+//            platform.put("values", Arrays.asList("PC", "PS5", "Xbox"));
+//            attributes.add(platform);
+//
+//            // Add the update operation for every game to the batch
+//            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+//                batch.update(doc.getReference(), "attributes", attributes);
+//            }
+//
+//            // Commit the batch
+//            batch.commit().addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    Toast.makeText(getContext(), "All 90 games updated!", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    Toast.makeText(getContext(), "Update failed", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        });
+
+
+        //Repeated games cleaner
+        db.collection("games").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            WriteBatch batch = db.batch();
+            Set<String> seenTitles = new HashSet<>();
+            int deleteCount = 0;
+
+            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                String title = doc.getString("title");
+
+                if (title != null) {
+                    if (seenTitles.contains(title)) {
+                        // It's a duplicate, mark it for deletion
+                        batch.delete(doc.getReference());
+                        deleteCount++;
+                    } else {
+                        // First time seeing this title, add it to our tracking set
+                        seenTitles.add(title);
+                    }
+                }
+            }
+
+            if (deleteCount > 0) {
+                final int finalCount = deleteCount;
+                batch.commit().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Cleaned up " + finalCount + " duplicates!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to delete duplicates", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(getContext(), "No duplicates found!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+
         if (catId != null) {
             db.collection("games")
                     .whereEqualTo("categoryId", catId)
@@ -209,6 +282,7 @@ public class GamesFragment extends Fragment {
 
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("gameId", game.getGameId());
+                                bundle.putSerializable("catId", game.getCategoryId());
 
                                 GameDetailFragment gameDetailFragment = new GameDetailFragment();
                                 gameDetailFragment.setArguments(bundle);
@@ -242,6 +316,7 @@ public class GamesFragment extends Fragment {
 
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("gameId", game.getGameId());
+                                bundle.putString("catId", game.getCategoryId());
 
                                 GameDetailFragment gameDetailFragment = new GameDetailFragment();
                                 gameDetailFragment.setArguments(bundle);

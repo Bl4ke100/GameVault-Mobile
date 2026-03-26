@@ -8,4 +8,12 @@
     <color name="cyber_yellow">#FCEE0A</color>
     <color name="neon_red">#FF003C</color>
     <color name="neon_green">#39FF14</color>
+
+    <!-- Dividers -->
+    <color name="divider_light">#1A000000</color>
+    <color name="divider_dark">#1AFFFFFF</color>
+
+    <!-- Secondary labels (DEVELOPER, ABOUT, etc.) -->
+    <color name="label_light">#888888</color>
+    <color name="label_dark">#AAAAAA</color>
 </resources>
