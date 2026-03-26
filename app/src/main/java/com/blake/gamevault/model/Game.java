@@ -24,4 +24,18 @@ public class Game {
     private List<String> images;
     private int stock;
     private boolean status;
+    private float rating;
+    private List<Attribute> attributes;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Attribute{
+
+        private String  name;
+        private String type;
+        private List<String> values;
+
+    }
 }
