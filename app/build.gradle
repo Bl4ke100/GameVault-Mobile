@@ -52,5 +52,9 @@ dependencies {
     annotationProcessor(libs.lombok)
     implementation libs.glide
     implementation(libs.dotsindicator)
+    implementation libs.payhere.android.sdk
+    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation(libs.firebase.storage)
+
 
 }

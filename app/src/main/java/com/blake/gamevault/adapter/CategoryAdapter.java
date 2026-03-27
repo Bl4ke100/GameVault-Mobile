@@ -15,6 +15,7 @@ import com.blake.gamevault.R;
 import com.blake.gamevault.model.Category;
 import com.blake.gamevault.util.CardFlipAnimator;
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
 
@@ -22,11 +23,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     private List<Category> categories;
     private OnCategoryClickListener listener;
+    private FirebaseStorage storage;
 
     public CategoryAdapter(List<Category> categories, OnCategoryClickListener listener) {
 
         this.categories = categories;
         this.listener = listener;
+        storage = FirebaseStorage.getInstance();
     }
 
     @NonNull
@@ -42,6 +45,17 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     public void onBindViewHolder(@NonNull CategoryAdapter.ViewHolder holder, int position) {
         Category category = categories.get(position);
         holder.catName.setText(category.getName());
+
+        storage.getReference("/" + category.getImageUrl())
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Glide.with(holder.itemView.getContext())
+                            .load(uri)
+                            .centerCrop()
+                            .into(holder.catImage);
+
+                });
+
         Glide.with(holder.itemView.getContext())
                 .load(category.getImageUrl())
                 .into(holder.catImage);
@@ -70,7 +84,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         }
     }
 
-    public interface OnCategoryClickListener{
+    public interface OnCategoryClickListener {
         void onCategoryClick(Category category);
     }
 }
