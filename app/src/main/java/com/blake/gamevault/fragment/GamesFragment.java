@@ -42,6 +42,9 @@ public class GamesFragment extends Fragment {
     private ListingAdapter adapter;
     private String catId;
 
+    private List<Game> fullGameList = new ArrayList<>();
+    private List<Game> displayedGameList = new ArrayList<>();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,7 @@ public class GamesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
 
         binding.recyclerGameView.setLayoutManager(new GridLayoutManager(getContext(), 3));
 
@@ -346,5 +350,101 @@ public class GamesFragment extends Fragment {
                 requireActivity().getSupportFragmentManager().popBackStack();
             }
         });
+
+        requireActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
+
+        binding.recyclerGameView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        binding.btnGamesBack.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+
+        binding.btnSortGames.setOnClickListener(v -> {
+            String[] options = {"Price: Low to High", "Price: High to Low", "Title: A-Z"};
+            new android.app.AlertDialog.Builder(getContext())
+                    .setTitle("Sort By")
+                    .setItems(options, (dialog, which) -> {
+                        if (which == 0) {
+                            displayedGameList.sort((g1, g2) -> Double.compare(g1.getPrice(), g2.getPrice()));
+                        } else if (which == 1) {
+                            displayedGameList.sort((g1, g2) -> Double.compare(g2.getPrice(), g1.getPrice()));
+                        } else if (which == 2) {
+                            displayedGameList.sort((g1, g2) -> g1.getTitle().compareToIgnoreCase(g2.getTitle()));
+                        }
+                        adapter.notifyDataSetChanged();
+                    }).show();
+        });
+
+        // 4. Setup Local Search Filter
+        binding.gamesLocalSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String query = s.toString().toLowerCase().trim();
+                displayedGameList.clear();
+
+                if (query.isEmpty()) {
+                    displayedGameList.addAll(fullGameList);
+                } else {
+                    for (Game game : fullGameList) {
+                        if (game.getTitle().toLowerCase().contains(query)) {
+                            displayedGameList.add(game);
+                        }
+                    }
+                }
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        // ... Keep your existing Duplicate Cleaner code here ...
+
+        // 5. Update your Firestore fetch calls to populate the lists
+        Query query = (catId != null)
+                ? db.collection("games").whereEqualTo("categoryId", catId).orderBy("title", Query.Direction.ASCENDING)
+                : db.collection("games").orderBy("title", Query.Direction.ASCENDING);
+
+        query.get().addOnSuccessListener(ds -> {
+            if (!ds.isEmpty()) {
+                fullGameList = ds.toObjects(Game.class);
+                displayedGameList.clear();
+                displayedGameList.addAll(fullGameList);
+
+                adapter = new ListingAdapter(displayedGameList, game -> {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("gameId", game.getGameId());
+                    bundle.putString("catId", game.getCategoryId());
+
+                    GameDetailFragment gameDetailFragment = new GameDetailFragment();
+                    gameDetailFragment.setArguments(bundle);
+
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, gameDetailFragment)
+                            .addToBackStack(null)
+                            .commit();
+                });
+                binding.recyclerGameView.setAdapter(adapter);
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("Firestore", "Error" + e.getMessage());
+            Toast.makeText(getContext(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+        });
+
+        // 6. Restore Toolbar when leaving
+        getActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
+                requireActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        requireActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
     }
 }

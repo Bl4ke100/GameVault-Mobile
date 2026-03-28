@@ -2,7 +2,6 @@ package com.blake.gamevault.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.LocusId;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.blake.gamevault.R;
-import com.blake.gamevault.databinding.FragmentCartBinding;
 import com.blake.gamevault.databinding.FragmentCheckoutBinding;
 import com.blake.gamevault.listener.FireStoreCallback;
 import com.blake.gamevault.model.CartItem;
@@ -30,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +81,7 @@ public class CheckoutFragment extends Fragment {
 
             getGamesById(gameIds, data -> {
                 subTotal = 0;
-                int itemCount = 0; // 1. Initialize to 0
+                int itemCount = 0;
 
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
@@ -100,9 +99,6 @@ public class CheckoutFragment extends Fragment {
 
         });
 
-
-        String uid = firebaseAuth.getCurrentUser().getUid();
-
         binding.btnConfirmOrder.setOnClickListener(v -> {
 
             if (validateInputs() && paymentActive) {
@@ -115,7 +111,7 @@ public class CheckoutFragment extends Fragment {
                 req.setCurrency("LKR");
                 req.setAmount(subTotal);
                 req.setOrderId("GVOD 001");
-                req.setItemsDescription(" ");
+                req.setItemsDescription("Game Purchase");
 
                 req.getCustomer().setFirstName(binding.checkoutInputFullName.getText().toString());
                 req.getCustomer().setLastName(binding.checkoutInputFullName.getText().toString());
@@ -158,7 +154,7 @@ public class CheckoutFragment extends Fragment {
 
     private void getGamesById(List<String> gameIds, FireStoreCallback<Map<String, Game>> callback) {
 
-        Map<String, Game> games = new HashMap();
+        Map<String, Game> games = new HashMap<>();
 
         if (gameIds == null || gameIds.isEmpty()) {
             callback.onCallback(games);
@@ -187,38 +183,6 @@ public class CheckoutFragment extends Fragment {
 
     }
 
-//    private void getSubTotal() {
-//
-//        List<CartItem> cartItems = getCartItems();
-//
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//        List<String> gameIds = new ArrayList<>();
-//        cartItems.forEach(cartItem -> {
-//            gameIds.add(cartItem.getGameId());
-//        });
-//
-//        Map<String, Game> games = getGamesById(gameIds);
-//
-//        double subTotal = 0;
-//
-//        for (CartItem cartItem : cartItems) {
-//            Game game = games.get(cartItem.getGameId());
-//            if (game != null) {
-//                subTotal += game.getPrice() * cartItem.getQty();
-//            }
-//        }
-//
-//
-//
-//        int totalQty = 0;
-//        for (CartItem item : cartItems) {
-//            totalQty += item.getQty();
-//        }
-//
-//        return subTotal;
-//    }
-
     private final ActivityResultLauncher<Intent> payhereLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
 
@@ -232,29 +196,41 @@ public class CheckoutFragment extends Fragment {
                         if (response != null && response.isSuccess()) {
                             StatusResponse statusResponse = response.getData();
 
-                            saveOrder(statusResponse);
+                            // Payment was successful, save the order with a "PAID" status
+                            saveOrder(statusResponse, "PAID");
                             Log.i("PayHere", "Payment Successful");
                             Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // The PayHere result was not a success, save as "CANCELLED"
+                            saveCancelledOrder();
+                            Log.i("PayHere", "Payment not a success or response is null");
+                            Toast.makeText(getContext(), "Payment Failed or Cancelled.", Toast.LENGTH_SHORT).show();
                         }
                     }
 
                 } else {
+                    // Result code is not RESULT_OK, meaning user cancelled or an error occurred before reaching payment
+                    saveCancelledOrder();
                     Toast.makeText(getContext(), "Payment Failed!", Toast.LENGTH_SHORT).show();
                 }
             });
 
-    private void saveOrder(StatusResponse statusResponse) {
+    /**
+     * Correct and fixed version of saveOrder
+     * Moves order creation and library/cart updates OUTSIDE of loops and into a WriteBatch for simultaneous execution.
+     */
+    private void saveOrder(StatusResponse statusResponse, String status) {
         getCartItems(cartItems -> {
 
             String uid = firebaseAuth.getCurrentUser().getUid();
 
             Order order = new Order();
+            // User generated Order ID as doc ID for predictability
             order.setOrderId(String.valueOf(System.currentTimeMillis()));
             order.setUserId(uid);
             order.setTotalAmount(subTotal);
-            order.setStatus("PAID");
+            order.setStatus(status); // Use the parameter passed in
             order.setOrderDate(Timestamp.now().toDate().getTime());
-
 
             String name = binding.checkoutInputFullName.getText().toString();
             String email = binding.checkoutInputEmail.getText().toString();
@@ -280,24 +256,25 @@ public class CheckoutFragment extends Fragment {
                 gameIds.add(cartItem.getGameId());
             }
 
-            List<Order.OrderItem> orderItems = new ArrayList<>();
-
+            // Move the logic inside getGamesById so we can construct all OrderItems
             getGamesById(gameIds, data -> {
-                for (CartItem cartItem : cartItems) {
+                List<Order.OrderItem> orderItems = new ArrayList<>();
 
+                // 1. Build the Order Items List (Iterating over cart items)
+                for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
                     if (game != null) {
 
                         List<Order.OrderItem.Attribute> attributes = new ArrayList<>();
-                        for (CartItem.Attribute at : cartItem.getAttributes()) {
-                            Order.OrderItem.Attribute attribute = Order.OrderItem.Attribute.builder()
-                                    .name(at.getName())
-                                    .value(at.getValue())
-                                    .build();
-
-                            attributes.add(attribute);
+                        if (cartItem.getAttributes() != null) {
+                            for (CartItem.Attribute at : cartItem.getAttributes()) {
+                                Order.OrderItem.Attribute attribute = Order.OrderItem.Attribute.builder()
+                                        .name(at.getName())
+                                        .value(at.getValue())
+                                        .build();
+                                attributes.add(attribute);
+                            }
                         }
-
 
                         Order.OrderItem orderItem = Order.OrderItem.builder()
                                 .gameId(cartItem.getGameId())
@@ -307,34 +284,143 @@ public class CheckoutFragment extends Fragment {
                                 .build();
 
                         orderItems.add(orderItem);
-
-                        order.setOrderItems(orderItems);
-
-                        db.collection("orders")
-                                .document().set(order)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(getContext(), "Order Placed Successfully!", Toast.LENGTH_SHORT).show();
-
-                                    db.collection("users").document(uid)
-                                            .collection("cart").
-                                            get()
-                                            .addOnSuccessListener(qsd -> {
-                                                qsd.getDocuments().forEach(ds -> {
-                                                    ds.getReference().delete();
-                                                });
-                                            });
-
-                                    getParentFragmentManager().beginTransaction()
-                                            .replace(R.id.fragmentContainer, new ShopFragment())
-                                            .commit();
-
-
-                                });
                     }
-
                 }
-            });
 
+                // Associate the compiled list of items with the order
+                order.setOrderItems(orderItems);
+
+                // 2. Save the SINGLE Order document (now OUTSIDE of the loops!)
+                db.collection("orders")
+                        .document(order.getOrderId()) // Good practice to use your generated ID as the doc ID
+                        .set(order)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getContext(), "Order Placed Successfully!", Toast.LENGTH_SHORT).show();
+
+                            // 3. Initialize a WriteBatch to simultaneously update Library and clear Cart
+                            WriteBatch batch = db.batch();
+
+                            // Add purchased products to the library collection under the user
+                            for (CartItem item : cartItems) {
+                                Map<String, Object> libraryData = new HashMap<>();
+                                libraryData.put("gameId", item.getGameId());
+                                libraryData.put("purchaseDate", order.getOrderDate());
+
+                                // Save using gameId as the document name so duplicates aren't created in library
+                                batch.set(db.collection("users").document(uid)
+                                        .collection("library").document(item.getGameId()), libraryData);
+                            }
+
+                            // Fetch cart items again within success callback to get document references for deletion
+                            db.collection("users").document(uid).collection("cart")
+                                    .get()
+                                    .addOnSuccessListener(qsd -> {
+                                        for (DocumentSnapshot ds : qsd.getDocuments()) {
+                                            // Add deletion operation for each cart item to the batch
+                                            batch.delete(ds.getReference());
+                                        }
+
+                                        // Commit the batch (Executes library adds and cart deletes simultaneously)
+                                        batch.commit().addOnSuccessListener(unused -> {
+                                            // Transition back to main shop fragment on final success
+                                            getParentFragmentManager().beginTransaction()
+                                                    .replace(R.id.fragmentContainer, new ShopFragment())
+                                                    .commit();
+                                        });
+                                    });
+                        });
+            });
+        });
+    }
+
+    /**
+     * Helper to save a CANCELLED order without a statusResponse.
+     * Doesn't add games to library or clear cart.
+     */
+    private void saveCancelledOrder() {
+        if (firebaseAuth.getCurrentUser() == null) return;
+
+        getCartItems(cartItems -> {
+
+            String uid = firebaseAuth.getCurrentUser().getUid();
+
+            Order order = new Order();
+            // User generated Order ID as doc ID
+            order.setOrderId(String.valueOf(System.currentTimeMillis()));
+            order.setUserId(uid);
+            order.setTotalAmount(subTotal);
+            order.setStatus("CANCELLED"); // Set as cancelled
+            order.setOrderDate(Timestamp.now().toDate().getTime());
+
+            // Get billing data from views
+            String name = binding.checkoutInputFullName.getText().toString();
+            String email = binding.checkoutInputEmail.getText().toString();
+            String phone = binding.checkoutInputPhone.getText().toString();
+            String addressLine1 = binding.checkoutInputAddressLine1.getText().toString();
+            String addressLine2 = binding.checkoutInputAddressLine2.getText().toString();
+            String city = binding.checkoutInputCity.getText().toString();
+            String postalCode = binding.checkoutInputPostalCode.getText().toString();
+
+            Order.Address billingAddress = Order.Address.builder()
+                    .fullName(name)
+                    .email(email)
+                    .phoneNumber(phone)
+                    .addressLine1(addressLine1)
+                    .addressLine2(addressLine2)
+                    .city(city)
+                    .postalCode(postalCode).build();
+
+            order.setBillingAddress(billingAddress);
+
+            ArrayList<String> gameIds = new ArrayList<>();
+            for (CartItem cartItem : cartItems) {
+                gameIds.add(cartItem.getGameId());
+            }
+
+            getGamesById(gameIds, data -> {
+                List<Order.OrderItem> orderItems = new ArrayList<>();
+
+                // Build the Order Items List
+                for (CartItem cartItem : cartItems) {
+                    Game game = data.get(cartItem.getGameId());
+                    if (game != null) {
+
+                        List<Order.OrderItem.Attribute> attributes = new ArrayList<>();
+                        if (cartItem.getAttributes() != null) {
+                            for (CartItem.Attribute at : cartItem.getAttributes()) {
+                                Order.OrderItem.Attribute attribute = Order.OrderItem.Attribute.builder()
+                                        .name(at.getName())
+                                        .value(at.getValue())
+                                        .build();
+                                attributes.add(attribute);
+                            }
+                        }
+
+                        Order.OrderItem orderItem = Order.OrderItem.builder()
+                                .gameId(cartItem.getGameId())
+                                .unitPrice(game.getPrice())
+                                .qty(cartItem.getQty())
+                                .attributes(attributes)
+                                .build();
+
+                        orderItems.add(orderItem);
+                    }
+                }
+
+                order.setOrderItems(orderItems);
+
+                // Save the cancelled order to Firestore purchase history
+                db.collection("orders")
+                        .document(order.getOrderId())
+                        .set(order)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.i("PayHere", "Cancelled order saved.");
+                            // Transition back without modifying cart/library
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.fragmentContainer, new ShopFragment())
+                                    .commit();
+                        });
+            });
         });
     }
 

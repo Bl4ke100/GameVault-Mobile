@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
 
+
     EditText searchTextInput;
 
     @Override
@@ -157,6 +158,69 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+        searchTextInput = binding.searchTextInput;
+
+        // Setup the Dropdown
+        android.widget.ListPopupWindow listPopupWindow = new android.widget.ListPopupWindow(this);
+        listPopupWindow.setAnchorView(searchTextInput);
+        java.util.List<com.blake.gamevault.model.Game> searchResults = new java.util.ArrayList<>();
+        android.widget.ArrayAdapter<String> popupAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new java.util.ArrayList<>());
+        listPopupWindow.setAdapter(popupAdapter);
+
+        // Handle Clicks
+        listPopupWindow.setOnItemClickListener((parent, view, position, id) -> {
+            com.blake.gamevault.model.Game game = searchResults.get(position);
+            listPopupWindow.dismiss();
+            searchTextInput.clearFocus();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("gameId", game.getGameId());
+            bundle.putString("catId", game.getCategoryId());
+
+            com.blake.gamevault.fragment.GameDetailFragment detailFragment = new com.blake.gamevault.fragment.GameDetailFragment();
+            detailFragment.setArguments(bundle);
+            loadFragment(detailFragment);
+        });
+
+        // Search logic
+        searchTextInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String query = s.toString().trim();
+                if (query.isEmpty()) {
+                    listPopupWindow.dismiss();
+                    return;
+                }
+
+                firebaseFirestore.collection("games")
+                        .orderBy("title")
+                        .startAt(query)
+                        .endAt(query + "\uf8ff")
+                        .limit(5)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            searchResults.clear();
+                            popupAdapter.clear();
+
+                            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                                com.blake.gamevault.model.Game g = doc.toObject(com.blake.gamevault.model.Game.class);
+                                if (g != null) {
+                                    searchResults.add(g);
+                                    popupAdapter.add(g.getTitle());
+                                }
+                            }
+
+                            if (!searchResults.isEmpty()) {
+                                listPopupWindow.show();
+                            } else {
+                                listPopupWindow.dismiss();
+                            }
+                        });
+            }
+        });
 
     }
 
