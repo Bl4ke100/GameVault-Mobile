@@ -46,11 +46,10 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         holder.gameTitle.setText(game.getTitle());
         holder.gamePrice.setText("LKR " + game.getPrice() + "0");
 
-        // 1. ADD THIS LINE: Clear the old image so it doesn't "ghost" into the new item
+        // Reset state before loading
         Glide.with(holder.itemView.getContext()).clear(holder.gameImage);
-
-        // 2. Optional: Set a placeholder so it doesn't look empty
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
+        holder.resetPosition(); // Reset translation for the recycled view
 
         String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
 
@@ -59,22 +58,20 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
                 .addOnSuccessListener(uri -> {
                     Glide.with(holder.itemView.getContext())
                             .load(uri)
-                            .centerCrop()
+                            .centerCrop() // Fills the space to allow for movement
                             .into(holder.gameImage);
+
+                    holder.gameImage.setScaleX(1.03f);
+                    holder.gameImage.setScaleY(1.03f);
                 })
-                .addOnFailureListener(e -> {
-                    // If the image doesn't exist, keep the placeholder
-                    Log.e("StorageError", "No image for: " + game.getGameId());
-                });
+                .addOnFailureListener(e -> Log.e("StorageError", "No image for: " + game.getGameId()));
 
         CardFlipAnimator.attach(holder.itemView, () -> {
-            Log.d("ClickTest", "Card clicked for: " + game.getTitle());
             if (listener != null) {
                 listener.onGameClick(game);
             }
         });
     }
-
 
     @Override
     public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
@@ -99,15 +96,13 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         TextView gameTitle;
         TextView gamePrice;
 
-        SensorManager sensorManager;
-        Sensor gravitySensor;
+        private SensorManager sensorManager;
+        private Sensor gravitySensor;
 
-        // Settings to fix the "too much" feeling
-        private float intensity = 4f; // Lowered from 12f to 4f for subtle movement
-        private float smoothing = 0.15f; // Values 0.0 to 1.0 (Lower is smoother/slower)
-
-        private float currentX = 0;
-        private float currentY = 0;
+        // Parallax settings - Tweak these for "tiny" movement
+        private float intensity = 1f;     // Max movement in pixels
+        private float smoothing = 0.1f;   // Lower is smoother (0.0 to 1.0)
+        private float curX = 0, curY = 0;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -129,22 +124,29 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             sensorManager.unregisterListener(this);
         }
 
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            // Target positions based on tilt
-            float targetX = event.values[0] * intensity;
-            float targetY = event.values[1] * intensity;
-
-            // LERP (Linear Interpolation) for buttery smooth gliding
-            currentX = currentX + (targetX - currentX) * smoothing;
-            currentY = currentY + (targetY - currentY) * smoothing;
-
-            gameImage.setTranslationX(currentX);
-            gameImage.setTranslationY(currentY);
+        public void resetPosition() {
+            curX = 0;
+            curY = 0;
+            gameImage.setTranslationX(0);
+            gameImage.setTranslationY(0);
         }
 
         @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+        public void onSensorChanged(SensorEvent event) {
+            float targetX = event.values[0] * intensity;
+            float targetY = event.values[1] * intensity;
+
+            // Smoothed interpolation (LERP)
+            curX += (targetX - curX) * smoothing;
+            curY += (targetY - curY) * smoothing;
+
+            gameImage.setTranslationX(curX);
+            gameImage.setTranslationY(curY);
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
     }
 
     public interface OnGameClickListener {

@@ -1,5 +1,10 @@
 package com.blake.gamevault.fragment;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +15,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.blake.gamevault.R;
+import com.blake.gamevault.adapter.BannerAdapter;
 import com.blake.gamevault.adapter.CategoryAdapter;
 import com.blake.gamevault.adapter.GameSliderAdapter;
 import com.blake.gamevault.databinding.FragmentHomeBinding;
@@ -27,15 +34,29 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements SensorEventListener {
 
     private FragmentHomeBinding binding;
     private FirebaseFirestore db;
 
+    // Shake Sensor Variables
+    private SensorManager sensorManager;
+    private float acceleration = 0f;
+    private float currentAcceleration = 0f;
+    private float lastAcceleration = 0f;
+    private List<Game> allGamesList = new ArrayList<>();
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
+
+        // Initialize Sensors
+        sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
+        lastAcceleration = SensorManager.GRAVITY_EARTH;
+        currentAcceleration = SensorManager.GRAVITY_EARTH;
+        acceleration = 0.00f;
+
         return binding.getRoot();
     }
 
@@ -48,7 +69,7 @@ public class HomeFragment extends Fragment {
 
         // 1. Fetch Top Banners
         storage.getReference().child("images/banners").listAll().addOnSuccessListener(listResult -> {
-            java.util.List<String> urls = new java.util.ArrayList<>();
+            List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
             if (total == 0) return;
             for (com.google.firebase.storage.StorageReference item : listResult.getItems()) {
@@ -63,7 +84,7 @@ public class HomeFragment extends Fragment {
 
         // 2. Fetch New Arrivals Banners
         storage.getReference().child("images/new-arrivals").listAll().addOnSuccessListener(listResult -> {
-            java.util.List<String> urls = new java.util.ArrayList<>();
+            List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
             if (total == 0) return;
             for (com.google.firebase.storage.StorageReference item : listResult.getItems()) {
@@ -76,75 +97,59 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // 3. Load the Game Cards & Categories
         loadFeaturedGames();
         loadCategories();
-        loadNewArrivals(); // <-- ADDED THIS BACK IN!
+        loadNewArrivals();
     }
 
+    // ===== SHAKE LOGIC =====
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
 
-    // ===== BANNER SLIDER =====
-    private void loadBannerSlider() {
-        db.collection("games")
-                .whereEqualTo("featured", true)
-                .limit(5)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) return;
+        lastAcceleration = currentAcceleration;
+        currentAcceleration = (float) Math.sqrt(x * x + y * y + z * z);
+        float delta = currentAcceleration - lastAcceleration;
+        acceleration = acceleration * 0.9f + delta;
 
-                    List<Game> featuredGames = querySnapshot.toObjects(Game.class);
-                    List<String> imageNames = new ArrayList<>();
-
-                    // Since the SliderAdapter now expects a folder-based approach:
-                    // We need the gameId. If this slider is meant for a SINGLE game's images:
-                    Game firstGame = featuredGames.get(0);
-
-                    // If you wanted a slider of DIFFERENT games,
-                    // you'd actually need a different Adapter (like your BannerAdapter).
-                    // But to fix the COMPILER error for now:
-
-                    for (Game game : featuredGames) {
-                        // Assuming you want to show the poster of each featured game
-                        imageNames.add("poster.png");
-                    }
-
-                    // Pass the list and the ID of the game folder to look into
-                    GameSliderAdapter sliderAdapter = new GameSliderAdapter(imageNames, firstGame.getGameId());
-                    binding.homeBannerSlider.setAdapter(sliderAdapter);
-
-                    setupBannerDots(imageNames.size());
-
-                    binding.homeBannerSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-                        @Override
-                        public void onPageSelected(int position) {
-                            updateDots(position, imageNames.size());
-                        }
-                    });
-                });
-    }
-
-    private void setupBannerDots(int count) {
-        binding.homeBannerDots.removeAllViews();
-        for (int i = 0; i < count; i++) {
-            View dot = new View(getContext());
-            int size = dpToPx(8);
-            int margin = dpToPx(4);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            params.setMargins(margin, 0, margin, 0);
-            dot.setLayoutParams(params);
-            dot.setBackgroundResource(i == 0 ? R.drawable.dot_active : R.drawable.dot_inactive);
-            binding.homeBannerDots.addView(dot);
+        if (acceleration > 10) { // Sensitivity threshold
+            pickRandomGame();
+            acceleration = 0;
         }
     }
 
-    private void updateDots(int selectedIndex, int count) {
-        for (int i = 0; i < count; i++) {
-            View dot = binding.homeBannerDots.getChildAt(i);
-            if (dot != null) {
-                dot.setBackgroundResource(i == selectedIndex ? R.drawable.dot_active : R.drawable.dot_inactive);
-            }
+    private void pickRandomGame() {
+        if (allGamesList != null && !allGamesList.isEmpty()) {
+            int randomIndex = new java.util.Random().nextInt(allGamesList.size());
+            Game randomGame = allGamesList.get(randomIndex);
+
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("🎲 Feeling Lucky?")
+                    .setMessage("You should try: " + randomGame.getTitle())
+                    .setPositiveButton("View Details", (dialog, which) -> {
+                        navigateToDetail(randomGame.getGameId());
+                    })
+                    .setNegativeButton("Shake Again", null)
+                    .show();
         }
     }
+
+    private void navigateToDetail(String gameId) {
+        GameDetailFragment detailFragment = new GameDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("gameId", gameId);
+        detailFragment.setArguments(bundle);
+
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer, detailFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     // ===== FEATURED GAMES =====
     private void loadFeaturedGames() {
@@ -153,13 +158,12 @@ public class HomeFragment extends Fragment {
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) return;
 
-                    List<Game> allGames = querySnapshot.toObjects(Game.class);
+                    List<Game> games = querySnapshot.toObjects(Game.class);
+                    this.allGamesList = games; // Store all games for the shake feature
 
-                    // Shuffle the entire list to randomize the order
-                    java.util.Collections.shuffle(allGames);
-
-                    // Safely grab up to 10 games (prevents crashing if you have less than 10)
-                    List<Game> randomGames = allGames.subList(0, Math.min(allGames.size(), 10));
+                    List<Game> featured = new ArrayList<>(games);
+                    java.util.Collections.shuffle(featured);
+                    List<Game> randomGames = featured.subList(0, Math.min(featured.size(), 10));
 
                     binding.homeFeaturedRow.removeAllViews();
                     for (Game game : randomGames) {
@@ -222,8 +226,7 @@ public class HomeFragment extends Fragment {
                 });
     }
 
-
-    // ===== HELPER: Add Game Card to horizontal row =====
+    // ===== HELPER: Add Game Card =====
     private void addGameCard(LinearLayout row, Game game) {
         View cardView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_home_game, row, false);
@@ -239,41 +242,17 @@ public class HomeFragment extends Fragment {
                 .load(game.getPosterUrl())
                 .into(image);
 
-        cardView.setOnClickListener(v -> {
-            GameDetailFragment detailFragment = new GameDetailFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("gameId", game.getGameId());
-            detailFragment.setArguments(bundle);
-
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragmentContainer, detailFragment)
-                    .addToBackStack(null)
-                    .commit();
-        });
+        cardView.setOnClickListener(v -> navigateToDetail(game.getGameId()));
 
         row.addView(cardView);
     }
 
-
-    private int dpToPx(int dp) {
-        return Math.round(dp * getResources().getDisplayMetrics().density);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    private void setupSlider(androidx.viewpager2.widget.ViewPager2 slider, com.tbuonomo.viewpagerdotsindicator.DotsIndicator dots, java.util.List<String> urls) {
-        // Set Adapter
-        com.blake.gamevault.adapter.BannerAdapter adapter = new com.blake.gamevault.adapter.BannerAdapter(urls);
+    // ===== BANNER SLIDER SETUP =====
+    private void setupSlider(ViewPager2 slider, com.tbuonomo.viewpagerdotsindicator.DotsIndicator dots, List<String> urls) {
+        BannerAdapter adapter = new BannerAdapter(urls);
         slider.setAdapter(adapter);
-
-        // Attach DotsIndicator
         dots.attachTo(slider);
 
-        // Auto-Scroll Logic
         android.os.Handler handler = new android.os.Handler();
         Runnable runnable = new Runnable() {
             @Override
@@ -283,23 +262,46 @@ public class HomeFragment extends Fragment {
                     int nextItem = (currentItem + 1) % urls.size();
                     slider.setCurrentItem(nextItem, true);
                 }
-                handler.postDelayed(this, 3500); // 3.5 seconds per slide
+                handler.postDelayed(this, 3500);
             }
         };
-
         handler.postDelayed(runnable, 3500);
 
-        // Pause Auto-Scroll when user is manually swiping
-        slider.registerOnPageChangeCallback(new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+        slider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrollStateChanged(int state) {
-                if (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING) {
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
                     handler.removeCallbacks(runnable);
-                } else if (state == androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE) {
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
                     handler.removeCallbacks(runnable);
                     handler.postDelayed(runnable, 3500);
                 }
             }
         });
+    }
+
+    // Lifecycle Management
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (sensorManager != null) {
+            sensorManager.registerListener(this,
+                    sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                    SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
