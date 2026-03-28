@@ -176,6 +176,10 @@ public class GameDetailFragment extends Fragment {
 
         binding.btnAddToCart.setOnClickListener(v -> {
 
+            if (!validateSelections()) {
+                return;
+            }
+
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
             if (firebaseAuth.getCurrentUser() == null){
@@ -260,6 +264,16 @@ public class GameDetailFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+    private boolean validateSelections() {
+        for (Map.Entry<String, ChipGroup> entry : attributeGroups.entrySet()) {
+            if (entry.getValue().getCheckedChipId() == View.NO_ID) {
+                Toast.makeText(getContext(), "Please select a " + entry.getKey(), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        return true;
     }
 
     private void renderAttribute(Game.Attribute attribute, ViewGroup container) {

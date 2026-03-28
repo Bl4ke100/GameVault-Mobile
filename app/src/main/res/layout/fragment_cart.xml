@@ -15,6 +15,51 @@
         android:layout_height="1dp"
         android:background="@color/surface_light" />
 
+    <LinearLayout
+        android:id="@+id/emptyCartView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="@color/surface_dark"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Cart is Empty"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Looks like you haven't added any games yet."
+            android:textSize="14sp"
+            android:textColor="@color/surface_dark"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBrowseGames"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Browse Games"
+            app:cornerRadius="12dp" />
+
+    </LinearLayout>
+
     <!-- Cart Items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cartRecyclerView"
@@ -27,6 +72,7 @@
 
     <!-- Bottom Summary -->
     <LinearLayout
+        android:id="@+id/bottomSummaryLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -114,7 +160,10 @@
                 app:backgroundTint="?attr/colorPrimary"
                 app:cornerRadius="12dp" />
 
+
+
         </LinearLayout>
+
 
     </LinearLayout>
 

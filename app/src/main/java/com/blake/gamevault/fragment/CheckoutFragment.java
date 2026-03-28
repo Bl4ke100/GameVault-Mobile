@@ -105,7 +105,7 @@ public class CheckoutFragment extends Fragment {
 
         binding.btnConfirmOrder.setOnClickListener(v -> {
 
-            if (paymentActive) {
+            if (validateInputs() && paymentActive) {
 
                 InitRequest req = new InitRequest();
                 req.setSandBox(true);
@@ -336,6 +336,44 @@ public class CheckoutFragment extends Fragment {
             });
 
         });
+    }
+
+    private boolean validateInputs() {
+        boolean isValid = true;
+
+        String name = binding.checkoutInputFullName.getText().toString().trim();
+        String email = binding.checkoutInputEmail.getText().toString().trim();
+        String phone = binding.checkoutInputPhone.getText().toString().trim();
+        String address = binding.checkoutInputAddressLine1.getText().toString().trim();
+        String city = binding.checkoutInputCity.getText().toString().trim();
+        String postalCode = binding.checkoutInputPostalCode.getText().toString().trim();
+
+        if (name.isEmpty()) {
+            binding.checkoutInputFullName.setError("Full Name is required");
+            isValid = false;
+        }
+        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.checkoutInputEmail.setError("Valid Email is required");
+            isValid = false;
+        }
+        if (phone.isEmpty() || phone.length() < 10) {
+            binding.checkoutInputPhone.setError("Valid Phone Number is required");
+            isValid = false;
+        }
+        if (address.isEmpty()) {
+            binding.checkoutInputAddressLine1.setError("Address is required");
+            isValid = false;
+        }
+        if (city.isEmpty()) {
+            binding.checkoutInputCity.setError("City is required");
+            isValid = false;
+        }
+        if (postalCode.isEmpty()) {
+            binding.checkoutInputPostalCode.setError("Postal Code is required");
+            isValid = false;
+        }
+
+        return isValid;
     }
 
 }

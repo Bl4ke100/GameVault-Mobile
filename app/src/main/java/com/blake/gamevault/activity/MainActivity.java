@@ -1,7 +1,10 @@
 package com.blake.gamevault.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,6 +49,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, NavigationBarView.OnItemSelectedListener {
@@ -109,20 +118,26 @@ public class MainActivity extends AppCompatActivity
         if (currentUser != null) {
             String uid = currentUser.getUid();
             firebaseFirestore.collection("users").document(currentUser.getUid()).get()
-                    .addOnSuccessListener(ds ->{
+                    .addOnSuccessListener(ds -> {
 
-                        if (ds.exists()){
-                        User user = ds.toObject(User.class);
-                        sideNavHeaderBinding.headerUsername.setText(user.getUsername());
-                        sideNavHeaderBinding.headerEmail.setText(user.getEmail());
+                        if (ds.exists()) {
+                            User user = ds.toObject(User.class);
+                            sideNavHeaderBinding.headerUsername.setText(user.getUsername());
+                            sideNavHeaderBinding.headerEmail.setText(user.getEmail());
 
-                        Glide.with(MainActivity.this)
-                                .load(user.getProfilePicUrl())
-                                .circleCrop()
-                                .into(sideNavHeaderBinding.headerPfp);
+                            FirebaseStorage storage = FirebaseStorage.getInstance();
+                            storage.getReference("/images/profile-images/" + user.getProfilePicUrl()).getDownloadUrl()
+                                    .addOnSuccessListener(uri -> {
+                                        Glide.with(MainActivity.this)
+                                                .load(uri)
+                                                .circleCrop()
+                                                .into(sideNavHeaderBinding.headerPfp);
+
+                                    });
+
                         }
 
-                    } );
+                    });
 
             navigationView.getMenu().findItem(R.id.side_nav_profile).setVisible(true);
             navigationView.getMenu().findItem(R.id.side_nav_order).setVisible(true);
@@ -131,10 +146,52 @@ public class MainActivity extends AppCompatActivity
             navigationView.getMenu().findItem(R.id.side_nav_login).setVisible(false);
             navigationView.getMenu().findItem(R.id.side_nav_logout).setVisible(true);
 
+
+            sideNavHeaderBinding.headerPfp.setOnClickListener(v -> {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                activityResultLauncher.launch(intent);
+            });
+
         }
 
 
     }
+
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Uri uri = result.getData().getData();
+                    Log.i("MainActivity", "Image URI:" + uri.getPath());
+
+                    Glide.with(MainActivity.this)
+                            .load(uri)
+                            .circleCrop()
+                            .into(sideNavHeaderBinding.headerPfp);
+
+                    String imageId = UUID.randomUUID().toString();
+
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference imageReference = storage.getReference("/images/profile-images/").child(imageId);
+
+                    imageReference.putFile(uri)
+                            .addOnSuccessListener(taskSnapshot -> {
+
+                                firebaseFirestore.collection("users")
+                                        .document(firebaseAuth.getUid())
+                                        .update("profilePicUrl", imageId)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(MainActivity.this, "Profile Picture Updated", Toast.LENGTH_SHORT).show();
+                                        });
+                            });
+
+
+                }
+            }
+    );
 
     private void setStatusBarColor() {
         int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -219,12 +276,12 @@ public class MainActivity extends AppCompatActivity
 
         } else if (itemId == R.id.bottom_nav_cart) {
 
-            if (firebaseAuth.getCurrentUser() == null){
+            if (firebaseAuth.getCurrentUser() == null) {
                 Toast.makeText(MainActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
-            }else {
+            } else {
                 loadFragment(new CartFragment());
                 restoreBottomNavSelection();
                 bottomNavigationView.getMenu().findItem(R.id.bottom_nav_cart).setChecked(true);
@@ -233,12 +290,12 @@ public class MainActivity extends AppCompatActivity
 
         } else if (itemId == R.id.bottom_nav_library) {
 
-            if (firebaseAuth.getCurrentUser() == null){
+            if (firebaseAuth.getCurrentUser() == null) {
                 Toast.makeText(MainActivity.this, "Please Login", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
-            }else {
+            } else {
                 loadFragment(new LibraryFragment());
                 restoreBottomNavSelection();
                 bottomNavigationView.getMenu().findItem(R.id.bottom_nav_library).setChecked(true);

@@ -256,13 +256,13 @@ public class GamesFragment extends Fragment {
                 final int finalCount = deleteCount;
                 batch.commit().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(getContext(), "Cleaned up " + finalCount + " duplicates!", Toast.LENGTH_SHORT).show();
+                        Log.i("Games Fragment", "Cleaned up " + finalCount + " duplicates!");
                     } else {
-                        Toast.makeText(getContext(), "Failed to delete duplicates", Toast.LENGTH_SHORT).show();
+                        Log.i("Games Fragment", "Failed to delete duplicates");
                     }
                 });
             } else {
-                Toast.makeText(getContext(), "No duplicates found!", Toast.LENGTH_SHORT).show();
+                Log.i("Games Fragment", "No duplicates found!");
             }
         });
 

@@ -65,58 +65,61 @@ public class CartFragment extends Fragment {
                         @Override
                         public void onSuccess(QuerySnapshot qds) {
 
-                            if (!qds.isEmpty()) {
-
+                            // Handle completely empty cart on first load
+                            if (qds.isEmpty()) {
                                 cartItems = new ArrayList<>();
+                                updateEmptyState();
+                                return;
+                            }
 
-                                for (DocumentSnapshot ds : qds.getDocuments()) {
-                                    CartItem cartItem = ds.toObject(CartItem.class);
-                                    if (cartItem != null) {
-                                        String documentId = ds.getId();
-                                        cartItem.setDocumentId(documentId);
+                            cartItems = new ArrayList<>();
 
-                                        cartItems.add(cartItem);
-                                    }
+                            for (DocumentSnapshot ds : qds.getDocuments()) {
+                                CartItem cartItem = ds.toObject(CartItem.class);
+                                if (cartItem != null) {
+                                    String documentId = ds.getId();
+                                    cartItem.setDocumentId(documentId);
+
+                                    cartItems.add(cartItem);
                                 }
+                            }
 
-                                //cartItems = qds.toObjects(CartItem.class);
+                            updateTotal();
+
+                            LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+                            binding.cartRecyclerView.setLayoutManager(layoutManager);
+
+                            CartAdapter adapter = new CartAdapter(cartItems);
+
+                            adapter.setOnQtyChangeListener(cartItem -> {
+                                String documentId = cartItem.getDocumentId();
+                                db.collection("users").document(uid)
+                                        .collection("cart").document(documentId)
+                                        .update("qty", cartItem.getQty())
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(getContext(), "Item Quantity Changed!", Toast.LENGTH_SHORT).show();
+                                        });
 
                                 updateTotal();
+                            });
 
-                                LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-                                binding.cartRecyclerView.setLayoutManager(layoutManager);
+                            adapter.setOnRemoveListener(position -> {
+                                String documentId = cartItems.get(position).getDocumentId();
+                                db.collection("users").document(uid)
+                                        .collection("cart").document(documentId)
+                                        .delete().addOnSuccessListener(aVoid -> {
+                                            cartItems.remove(position);
+                                            adapter.notifyItemRemoved(position);
+                                            adapter.notifyItemRangeChanged(position, cartItems.size());
+                                            updateTotal();
+                                            updateEmptyState(); // Update UI when an item is removed
+                                            Toast.makeText(getContext(), "Item Removed From Cart!", Toast.LENGTH_SHORT).show();
+                                        });
 
-                                CartAdapter adapter = new CartAdapter(cartItems);
+                            });
 
-                                adapter.setOnQtyChangeListener(cartItem -> {
-                                    String documentId = cartItem.getDocumentId();
-                                    db.collection("users").document(uid)
-                                            .collection("cart").document(documentId)
-                                                    .update("qty", cartItem.getQty())
-                                                            .addOnSuccessListener(aVoid -> {
-                                                                Toast.makeText(getContext(), "Item Quantity Changed!", Toast.LENGTH_SHORT).show();
-                                                            });
-
-                                    updateTotal();
-                                });
-
-                                adapter.setOnRemoveListener(position -> {
-                                    String documentId = cartItems.get(position).getDocumentId();
-                                    db.collection("users").document(uid)
-                                            .collection("cart").document(documentId)
-                                            .delete().addOnSuccessListener(aVoid -> {
-                                                cartItems.remove(position);
-                                                adapter.notifyItemRemoved(position);
-                                                adapter.notifyItemRangeChanged(position, cartItems.size());
-                                                updateTotal();
-                                                Toast.makeText(getContext(), "Item Removed From Cart!", Toast.LENGTH_SHORT).show();
-                                            });
-
-                                });
-
-                                binding.cartRecyclerView.setAdapter(adapter);
-
-                            }
+                            binding.cartRecyclerView.setAdapter(adapter);
+                            updateEmptyState(); // Update UI after setting adapter
                         }
                     });
         }
@@ -129,6 +132,27 @@ public class CartFragment extends Fragment {
                     .commit();
         });
 
+        binding.btnBrowseGames.setOnClickListener(v -> {
+            // Replace ShopFragment with whatever your home/games fragment is called
+            ShopFragment shopFragment = new ShopFragment();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, shopFragment)
+                    .commit();
+        });
+
+    }
+
+    // Drop this helper method anywhere inside your CartFragment class
+    private void updateEmptyState() {
+        if (cartItems == null || cartItems.isEmpty()) {
+            binding.cartRecyclerView.setVisibility(View.GONE);
+            binding.bottomSummaryLayout.setVisibility(View.GONE);
+            binding.emptyCartView.setVisibility(View.VISIBLE); // Updated ID
+        } else {
+            binding.cartRecyclerView.setVisibility(View.VISIBLE);
+            binding.bottomSummaryLayout.setVisibility(View.VISIBLE);
+            binding.emptyCartView.setVisibility(View.GONE); // Updated ID
+        }
     }
 
 
@@ -181,4 +205,6 @@ public class CartFragment extends Fragment {
                     }
                 });
     }
+
+
 }
