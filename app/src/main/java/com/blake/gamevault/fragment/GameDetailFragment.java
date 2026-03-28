@@ -23,8 +23,10 @@ import com.blake.gamevault.activity.LoginActivity;
 import com.blake.gamevault.activity.MainActivity;
 import com.blake.gamevault.adapter.GameSliderAdapter;
 import com.blake.gamevault.adapter.SimilarGameAdapter;
+import com.blake.gamevault.data.AppDatabase;
 import com.blake.gamevault.databinding.FragmentGameDetailBinding;
 import com.blake.gamevault.model.CartItem;
+import com.blake.gamevault.model.FavoriteGame;
 import com.blake.gamevault.model.Game;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -374,21 +376,31 @@ public class GameDetailFragment extends Fragment {
     }
 
     private void checkFavoriteStatus(FirebaseFirestore db) {
+        // 1. Check Local SQLite (Room) first for instant UI response
+        AppDatabase localDb = AppDatabase.getInstance(requireContext());
+        isFavorite = localDb.favoriteDao().isFavorite(gameId);
+        updateWishlistIcon();
+
+        // 2. Sync with Firebase in the background
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) return;
 
         String uid = auth.getCurrentUser().getUid();
-
-        // Check if this gameId exists in the user's favorites collection
         db.collection("users").document(uid).collection("favorites").document(gameId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        isFavorite = true;
-                        binding.iconWishlist.setImageResource(R.drawable.favorite_solid);
-                    } else {
-                        isFavorite = false;
-                        binding.iconWishlist.setImageResource(R.drawable.favorite);
+                    boolean firebaseFavorite = documentSnapshot.exists();
+
+                    // If Local and Firebase are out of sync, update Local
+                    if (firebaseFavorite != isFavorite) {
+                        isFavorite = firebaseFavorite;
+                        updateWishlistIcon();
+                        // Update SQLite to match Firebase
+                        if (isFavorite) {
+                            // You'd need to fetch the game object to save full details
+                        } else {
+                            localDb.favoriteDao().removeFavoriteById(gameId);
+                        }
                     }
                 });
     }
@@ -400,28 +412,45 @@ public class GameDetailFragment extends Fragment {
             return;
         }
 
+        AppDatabase localDb = AppDatabase.getInstance(requireContext());
         String uid = auth.getCurrentUser().getUid();
-        CollectionReference favRef = db.collection("users").document(uid).collection("favorites");
 
         if (isFavorite) {
-            // Remove from favorites
-            favRef.document(gameId).delete().addOnSuccessListener(unused -> {
-                isFavorite = false;
-                binding.iconWishlist.setImageResource(R.drawable.favorite);
-                Toast.makeText(getContext(), "Removed from Wishlist", Toast.LENGTH_SHORT).show();
-            });
+            // REMOVE logic
+            isFavorite = false;
+            updateWishlistIcon(); // Instant UI feedback
+
+            // Update SQLite
+            localDb.favoriteDao().removeFavoriteById(gameId);
+
+            // Update Firebase
+            db.collection("users").document(uid).collection("favorites").document(gameId)
+                    .delete()
+                    .addOnSuccessListener(unused -> Toast.makeText(getContext(), "Removed from Wishlist", Toast.LENGTH_SHORT).show());
         } else {
-            // Add to favorites (Just storing the gameId as the document ID and a timestamp)
+            // ADD logic
+            isFavorite = true;
+            updateWishlistIcon(); // Instant UI feedback
+
+            // Update SQLite (Saving basic info for offline viewing)
+            FavoriteGame fav = new FavoriteGame(gameId, binding.gameName.getText().toString(),
+                    binding.gamePrice.getText().toString(), ""); // Add poster URL if you have it
+            localDb.favoriteDao().addFavorite(fav);
+
+            // Update Firebase
             Map<String, Object> favData = new HashMap<>();
             favData.put("gameId", gameId);
-            favData.put("addedAt", com.google.firebase.Timestamp.now().toDate().getTime());
+            favData.put("addedAt", System.currentTimeMillis());
 
-            favRef.document(gameId).set(favData).addOnSuccessListener(unused -> {
-                isFavorite = true;
-                binding.iconWishlist.setImageResource(R.drawable.favorite_solid);
-                Toast.makeText(getContext(), "Added to Wishlist!", Toast.LENGTH_SHORT).show();
-            });
+            db.collection("users").document(uid).collection("favorites").document(gameId)
+                    .set(favData)
+                    .addOnSuccessListener(unused -> Toast.makeText(getContext(), "Added to Wishlist!", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    // Helper to keep the UI code clean
+    private void updateWishlistIcon() {
+        binding.iconWishlist.setImageResource(isFavorite ? R.drawable.favorite_solid : R.drawable.favorite);
     }
 
     private int resolveThemeColor(int attr) {
