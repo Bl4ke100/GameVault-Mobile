@@ -198,7 +198,10 @@ public class ProfileFragment extends Fragment {
 
         // About
         binding.btnAbout.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "About clicked", Toast.LENGTH_SHORT).show();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, new AboutFragment())
+                    .addToBackStack(null)
+                    .commit();
         });
 
         // Logout
