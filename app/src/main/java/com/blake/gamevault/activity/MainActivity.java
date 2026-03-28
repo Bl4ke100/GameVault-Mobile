@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -398,6 +399,33 @@ public class MainActivity extends AppCompatActivity
             menu.getItem(i).setChecked(false);
         }
     }
+
+//    private void fixGameImages() {
+//        com.google.firebase.firestore.FirebaseFirestore db = com.google.firebase.firestore.FirebaseFirestore.getInstance();
+//
+//        db.collection("games").get().addOnSuccessListener(queryDocumentSnapshots -> {
+//            com.google.firebase.firestore.WriteBatch batch = db.batch();
+//
+//            java.util.List<String> newImagesArray = java.util.Arrays.asList(
+//                    "image1.png", "image2.png", "image3.png", "image4.png"
+//            );
+//
+//            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+//                batch.update(doc.getReference(), "images", newImagesArray);
+//
+//                batch.update(doc.getReference(), "posterUrl", "poster.png");
+//            }
+//
+//            batch.commit().addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    android.util.Log.i("FIX_SCRIPT", "SUCCESS! All games updated to new images array and poster.png.");
+//                } else {
+//                    android.util.Log.e("FIX_SCRIPT", "Failed to update games", task.getException());
+//                }
+//            });
+//        });
+//    }
+
 
 
 }

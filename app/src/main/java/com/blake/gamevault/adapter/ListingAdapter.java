@@ -1,5 +1,6 @@
 package com.blake.gamevault.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,9 +43,19 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         Game game = games.get(position);
         holder.gameTitle.setText(game.getTitle());
         holder.gamePrice.setText("LKR " + game.getPrice()+"0");
-        Glide.with(holder.itemView.getContext())
-                .load(game.getPosterUrl())
-                .into(holder.gameImage);
+
+        String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
+
+        com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Glide.with(holder.itemView.getContext())
+                            .load(uri)
+                            .into(holder.gameImage);
+                })
+                .addOnFailureListener(e -> {
+                    Log.i("Error Updating Poster", "Ayyoooo");
+                });
 
         CardFlipAnimator.attach(holder.itemView, () -> {
             if (listener != null) {

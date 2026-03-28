@@ -83,7 +83,6 @@ public class HomeFragment extends Fragment {
     }
 
 
-
     // ===== BANNER SLIDER =====
     private void loadBannerSlider() {
         db.collection("games")
@@ -93,22 +92,32 @@ public class HomeFragment extends Fragment {
                 .addOnSuccessListener(querySnapshot -> {
                     if (querySnapshot.isEmpty()) return;
 
-                    List<String> bannerUrls = new ArrayList<>();
-                    for (Game game : querySnapshot.toObjects(Game.class)) {
-                        if (game.getPosterUrl() != null && !game.getPosterUrl().isEmpty()) {
-                            bannerUrls.add(game.getPosterUrl());
-                        }
+                    List<Game> featuredGames = querySnapshot.toObjects(Game.class);
+                    List<String> imageNames = new ArrayList<>();
+
+                    // Since the SliderAdapter now expects a folder-based approach:
+                    // We need the gameId. If this slider is meant for a SINGLE game's images:
+                    Game firstGame = featuredGames.get(0);
+
+                    // If you wanted a slider of DIFFERENT games,
+                    // you'd actually need a different Adapter (like your BannerAdapter).
+                    // But to fix the COMPILER error for now:
+
+                    for (Game game : featuredGames) {
+                        // Assuming you want to show the poster of each featured game
+                        imageNames.add("poster.png");
                     }
 
-                    GameSliderAdapter sliderAdapter = new GameSliderAdapter(bannerUrls);
+                    // Pass the list and the ID of the game folder to look into
+                    GameSliderAdapter sliderAdapter = new GameSliderAdapter(imageNames, firstGame.getGameId());
                     binding.homeBannerSlider.setAdapter(sliderAdapter);
 
-                    setupBannerDots(bannerUrls.size());
+                    setupBannerDots(imageNames.size());
 
                     binding.homeBannerSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
                         @Override
                         public void onPageSelected(int position) {
-                            updateDots(position, bannerUrls.size());
+                            updateDots(position, imageNames.size());
                         }
                     });
                 });
@@ -212,7 +221,6 @@ public class HomeFragment extends Fragment {
                     binding.homeCategoryGrid.setAdapter(adapter);
                 });
     }
-
 
 
     // ===== HELPER: Add Game Card to horizontal row =====

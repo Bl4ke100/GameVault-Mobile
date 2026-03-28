@@ -109,8 +109,7 @@ public class GameDetailFragment extends Fragment {
                         if (!qds.isEmpty()) {
                             Game game = qds.getDocuments().get(0).toObject(Game.class);
 
-                            GameSliderAdapter adapter = new GameSliderAdapter(game.getImages());
-                            binding.gameImageSlider.setAdapter(adapter);
+                            GameSliderAdapter adapter = new GameSliderAdapter(game.getImages(), game.getGameId());                            binding.gameImageSlider.setAdapter(adapter);
                             binding.gameName.setText(game.getTitle());
                             binding.gamePrice.setText(String.valueOf("LKR " + game.getPrice() + "0"));
                             binding.detailReleaseYear.setText(String.valueOf(game.getReleasedYear()));
@@ -226,10 +225,12 @@ public class GameDetailFragment extends Fragment {
 
         checkFavoriteStatus(db);
 
+        // 2. Attach the click listener to the wishlist button
         binding.btnWishlist.setOnClickListener(v -> {
             toggleFavorite(db);
         });
 
+        // ... (The rest of your existing code fetching the game details)
     }
 
     private void loadSimilarProducts() {

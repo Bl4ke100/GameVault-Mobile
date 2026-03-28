@@ -60,7 +60,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         if ("CANCELLED".equalsIgnoreCase(order.getStatus())) {
             holder.orderStatusBadge.setBackgroundColor(Color.parseColor("#D32F2F")); // Red for cancelled
         } else {
-            // If you have a primary color attribute, you can leave the background as is or set it programmatically
             holder.orderStatusBadge.setBackgroundResource(R.drawable.bg_stock_badge);
         }
 
@@ -117,7 +116,22 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                             Game game = gameMap.get(item.getGameId());
                             if (game != null) {
                                 title.setText(game.getTitle());
-                                Glide.with(context).load(game.getPosterUrl()).into(img);
+
+                                // --- NEW IMAGE LOADING LOGIC ---
+                                String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
+
+                                com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                                        .getDownloadUrl()
+                                        .addOnSuccessListener(uri -> {
+                                            Glide.with(context)
+                                                    .load(uri)
+                                                    .centerCrop()
+                                                    .into(img);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            android.util.Log.e("OrderAdapter", "Failed to load poster for: " + game.getTitle());
+                                        });
+                                // -------------------------------
                             }
 
                             // Add the row to the container!

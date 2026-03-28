@@ -52,7 +52,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull CartAdapter.ViewHolder holder, int position) {
         CartItem cartItem = cartItems.get(position);
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("games")
@@ -62,21 +61,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                     @Override
                     public void onSuccess(QuerySnapshot qds) {
                         if (!qds.isEmpty()) {
-
                             int currentposition = holder.getAbsoluteAdapterPosition();
-
-                            if (currentposition == RecyclerView.NO_POSITION) {
-                                return;
-                            }
+                            if (currentposition == RecyclerView.NO_POSITION) return;
 
                             Game game = qds.getDocuments().get(0).toObject(Game.class);
+                            if (game == null) return;
 
                             holder.gameTitle.setText(game.getTitle());
                             holder.gameUnitPrice.setText(String.format(Locale.US, "LKR %,.2f / unit", game.getPrice()));
                             holder.gameQty.setText(String.valueOf(cartItem.getQty()));
+                            holder.gamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice() * cartItem.getQty()));
 
-                            String selectedPlatform = "PC";
-
+                            // --- RESTORED PLATFORM LOGIC ---
+                            String selectedPlatform = "PC"; // Default fallback
                             if (cartItem.getAttributes() != null) {
                                 for (CartItem.Attribute attr : cartItem.getAttributes()) {
                                     if (attr.getName() != null && attr.getName().equalsIgnoreCase("Platform")) {
@@ -85,41 +82,44 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                                     }
                                 }
                             }
-
                             holder.gamePlatform.setText(selectedPlatform);
-                            holder.gamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice() * cartItem.getQty()));
+                            // -------------------------------
 
-                            Log.i("Platform:", game.getAttributes().get(0).getValues().get(0));
+                            // --- NEW IMAGE LOADING LOGIC ---
+                            String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
 
+                            com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                                    .getDownloadUrl()
+                                    .addOnSuccessListener(uri -> {
+                                        Glide.with(holder.itemView.getContext())
+                                                .load(uri)
+                                                .centerCrop()
+                                                .into(holder.gameImage);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("CartAdapter", "Failed to load poster for: " + game.getTitle());
+                                    });
+                            // -------------------------------
 
-                            Glide.with(holder.itemView.getContext())
-                                    .load(game.getPosterUrl())
-                                    .into(holder.gameImage);
-
-
+                            // Buttons
                             holder.btnPlus.setOnClickListener(v -> {
-
                                 if (cartItem.getQty() < game.getStock()) {
-
                                     cartItem.setQty(cartItem.getQty() + 1);
                                     notifyItemChanged(currentposition);
                                     if (qtyChangeListener != null) {
                                         qtyChangeListener.onChanged(cartItem);
                                     }
                                 }
-
                             });
 
                             holder.btnMinus.setOnClickListener(v -> {
                                 if (cartItem.getQty() > 1) {
-
                                     cartItem.setQty(cartItem.getQty() - 1);
                                     notifyItemChanged(currentposition);
                                     if (qtyChangeListener != null) {
                                         qtyChangeListener.onChanged(cartItem);
                                     }
                                 }
-
                             });
 
                             holder.btnRemove.setOnClickListener(v -> {
@@ -130,7 +130,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                         }
                     }
                 });
-
     }
 
     @Override
@@ -140,20 +139,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-
         ImageView gameImage;
         TextView gameTitle;
         TextView gamePrice;
-
         TextView gameUnitPrice;
         TextView gamePlatform;
         TextView gameQty;
-
         ImageButton btnPlus;
         ImageButton btnMinus;
-
         ImageButton btnRemove;
-
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -166,7 +160,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             btnPlus = itemView.findViewById(R.id.cartQtyIncrease);
             btnMinus = itemView.findViewById(R.id.cartQtyDecrease);
             btnRemove = itemView.findViewById(R.id.cartItemRemove);
-
         }
     }
 

@@ -15,7 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        android:background="?attr/colorOnPrimary">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +32,7 @@
                 android:text="Activation Keys"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface" />
+                android:textColor="?attr/colorPrimary" />
 
             <ImageView
                 android:id="@+id/dialogClose"
@@ -49,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text="Game Title"
             android:textSize="14sp"
-            android:textColor="@color/surface_dark"
+            android:textColor="?attr/colorPrimary"
             android:layout_marginBottom="16dp" />
 
         <View

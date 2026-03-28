@@ -13,6 +13,7 @@ import com.blake.gamevault.R;
 import com.blake.gamevault.model.Game;
 import com.blake.gamevault.util.CardFlipAnimator;
 import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
 
@@ -41,9 +42,15 @@ public class SimilarGameAdapter extends RecyclerView.Adapter<SimilarGameAdapter.
         Game game = games.get(position);
         holder.gameTitle.setText(game.getTitle());
         holder.gamePrice.setText("LKR " + game.getPrice()+"0");
-        Glide.with(holder.itemView.getContext())
-                .load(game.getPosterUrl())
-                .into(holder.gameImage);
+        String posterPath = "images/game-images/" + game.getGameId() + "/poster.png";
+
+        FirebaseStorage.getInstance().getReference(posterPath)
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Glide.with(holder.itemView.getContext())
+                            .load(uri)
+                            .into(holder.gameImage);
+                });
 
         CardFlipAnimator.attach(holder.itemView, () -> {
             if (listener != null) {

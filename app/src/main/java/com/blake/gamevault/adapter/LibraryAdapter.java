@@ -30,7 +30,6 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
     @NonNull
     @Override
     public LibraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Make sure to name your new XML file "item_library_card" or change this reference!
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_library_game, parent, false);
         return new LibraryViewHolder(view);
     }
@@ -42,11 +41,20 @@ public class LibraryAdapter extends RecyclerView.Adapter<LibraryAdapter.LibraryV
 
         holder.gameTitle.setText(game.getTitle());
 
-        Glide.with(context)
-                .load(game.getPosterUrl())
-                .into(holder.gameImage);
+        String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
 
-        // Attach the click listener ONLY to the "View Keys" button
+        com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Glide.with(context)
+                            .load(uri)
+                            .centerCrop()
+                            .into(holder.gameImage);
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("LibraryAdapter", "Failed to load poster for: " + game.getTitle());
+                });
+
         holder.btnRevealKey.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onKeyClick(game);

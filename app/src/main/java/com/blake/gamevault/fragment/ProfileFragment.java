@@ -186,9 +186,9 @@ public class ProfileFragment extends Fragment {
                     .commit();
         });
 
-        // Change Password
         binding.btnChangePassword.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Change Password clicked", Toast.LENGTH_SHORT).show();
+            com.blake.gamevault.fragment.ChangePasswordBottomSheet bottomSheet = new com.blake.gamevault.fragment.ChangePasswordBottomSheet();
+            bottomSheet.show(getParentFragmentManager(), "ChangePasswordBottomSheet");
         });
 
         // Privacy Policy
