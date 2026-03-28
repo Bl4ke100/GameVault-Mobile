@@ -72,6 +72,8 @@ public class CheckoutFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        loadUserData();
+
         getCartItems(cartItems -> {
 
             ArrayList<String> gameIds = new ArrayList<>();
@@ -460,6 +462,42 @@ public class CheckoutFragment extends Fragment {
         }
 
         return isValid;
+    }
+
+    private void loadUserData() {
+        if (firebaseAuth.getCurrentUser() == null) return;
+        String uid = firebaseAuth.getCurrentUser().getUid();
+
+        // Fallback to the Auth email just in case
+        binding.checkoutInputEmail.setText(firebaseAuth.getCurrentUser().getEmail());
+
+        db.collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists() && binding != null) {
+
+                        String name = documentSnapshot.getString("name");
+                        if (name != null) binding.checkoutInputFullName.setText(name);
+
+                        String email = documentSnapshot.getString("email");
+                        if (email != null && !email.isEmpty()) binding.checkoutInputEmail.setText(email);
+
+                        String phone = documentSnapshot.getString("phone");
+                        if (phone != null) binding.checkoutInputPhone.setText(phone);
+
+                        String address1 = documentSnapshot.getString("addressLine1");
+                        if (address1 != null) binding.checkoutInputAddressLine1.setText(address1);
+
+                        String address2 = documentSnapshot.getString("addressLine2");
+                        if (address2 != null) binding.checkoutInputAddressLine2.setText(address2);
+
+                        String city = documentSnapshot.getString("city");
+                        if (city != null) binding.checkoutInputCity.setText(city);
+
+                        String postalCode = documentSnapshot.getString("postalCode");
+                        if (postalCode != null) binding.checkoutInputPostalCode.setText(postalCode);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Checkout", "Failed to load user data for autofill"));
     }
 
 }

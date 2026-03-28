@@ -1,0 +1,90 @@
+package com.blake.gamevault.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.blake.gamevault.R;
+import com.blake.gamevault.model.Game;
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+import java.util.Locale;
+
+public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder> {
+
+    private List<Game> gameList;
+    private OnFavoriteClickListener listener;
+
+    public FavoriteAdapter(List<Game> gameList, OnFavoriteClickListener listener) {
+        this.gameList = gameList;
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public FavoriteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Change "item_favorite_card" if you named your XML file differently
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_wishlist_game, parent, false);
+        return new FavoriteViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull FavoriteViewHolder holder, int position) {
+        Game game = gameList.get(position);
+        Context context = holder.itemView.getContext();
+
+        holder.favGameTitle.setText(game.getTitle());
+        holder.favGamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice()));
+
+        Glide.with(context)
+                .load(game.getPosterUrl())
+                .into(holder.favGameImage);
+
+        // Click the card to view details
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onGameClick(game);
+        });
+
+        // Click the remove button to delete from favorites
+        holder.btnRemoveFav.setOnClickListener(v -> {
+            if (listener != null) listener.onRemoveClick(game, position);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return gameList.size();
+    }
+
+    public void removeGame(int position) {
+        gameList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, gameList.size());
+    }
+
+    public static class FavoriteViewHolder extends RecyclerView.ViewHolder {
+        ImageView favGameImage;
+        TextView favGameTitle, favGamePrice;
+        View btnRemoveFav;
+
+        public FavoriteViewHolder(@NonNull View itemView) {
+            super(itemView);
+            favGameImage = itemView.findViewById(R.id.favGameImage);
+            favGameTitle = itemView.findViewById(R.id.favGameTitle);
+            favGamePrice = itemView.findViewById(R.id.favGamePrice);
+            btnRemoveFav = itemView.findViewById(R.id.btnRemoveFav);
+        }
+    }
+
+    public interface OnFavoriteClickListener {
+        void onGameClick(Game game);
+        void onRemoveClick(Game game, int position);
+    }
+}

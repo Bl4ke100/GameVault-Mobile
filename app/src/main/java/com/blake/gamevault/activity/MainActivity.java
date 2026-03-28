@@ -143,7 +143,6 @@ public class MainActivity extends AppCompatActivity
             navigationView.getMenu().findItem(R.id.side_nav_profile).setVisible(true);
             navigationView.getMenu().findItem(R.id.side_nav_order).setVisible(true);
             navigationView.getMenu().findItem(R.id.side_nav_wishlist).setVisible(true);
-            navigationView.getMenu().findItem(R.id.side_nav_Message).setVisible(true);
             navigationView.getMenu().findItem(R.id.side_nav_login).setVisible(false);
             navigationView.getMenu().findItem(R.id.side_nav_logout).setVisible(true);
 
@@ -299,12 +298,6 @@ public class MainActivity extends AppCompatActivity
 
             loadFragment(new WishlistFragment());
             navigationView.getMenu().findItem(R.id.side_nav_wishlist).setChecked(true);
-            clearBottomNavSelection();
-
-        } else if (itemId == R.id.side_nav_Message) {
-
-            loadFragment(new MessageFragment());
-            navigationView.getMenu().findItem(R.id.side_nav_Message).setChecked(true);
             clearBottomNavSelection();
 
         } else if (itemId == R.id.side_nav_settings) {

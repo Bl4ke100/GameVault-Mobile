@@ -53,6 +53,7 @@ public class GameDetailFragment extends Fragment {
     private int qty = 1;
     private double availableQty;
     private Map<String, ChipGroup> attributeGroups = new HashMap<>();
+    private boolean isFavorite = false;
 
 
     @Override
@@ -221,6 +222,14 @@ public class GameDetailFragment extends Fragment {
                 });
             }
         });
+
+
+        checkFavoriteStatus(db);
+
+        binding.btnWishlist.setOnClickListener(v -> {
+            toggleFavorite(db);
+        });
+
     }
 
     private void loadSimilarProducts() {
@@ -361,6 +370,57 @@ public class GameDetailFragment extends Fragment {
 
         Log.i("Final Result", result.toString());
         return attributes;
+    }
+
+    private void checkFavoriteStatus(FirebaseFirestore db) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return;
+
+        String uid = auth.getCurrentUser().getUid();
+
+        // Check if this gameId exists in the user's favorites collection
+        db.collection("users").document(uid).collection("favorites").document(gameId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        isFavorite = true;
+                        binding.iconWishlist.setImageResource(R.drawable.favorite_solid);
+                    } else {
+                        isFavorite = false;
+                        binding.iconWishlist.setImageResource(R.drawable.favorite);
+                    }
+                });
+    }
+
+    private void toggleFavorite(FirebaseFirestore db) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) {
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            return;
+        }
+
+        String uid = auth.getCurrentUser().getUid();
+        CollectionReference favRef = db.collection("users").document(uid).collection("favorites");
+
+        if (isFavorite) {
+            // Remove from favorites
+            favRef.document(gameId).delete().addOnSuccessListener(unused -> {
+                isFavorite = false;
+                binding.iconWishlist.setImageResource(R.drawable.favorite);
+                Toast.makeText(getContext(), "Removed from Wishlist", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            // Add to favorites (Just storing the gameId as the document ID and a timestamp)
+            Map<String, Object> favData = new HashMap<>();
+            favData.put("gameId", gameId);
+            favData.put("addedAt", com.google.firebase.Timestamp.now().toDate().getTime());
+
+            favRef.document(gameId).set(favData).addOnSuccessListener(unused -> {
+                isFavorite = true;
+                binding.iconWishlist.setImageResource(R.drawable.favorite_solid);
+                Toast.makeText(getContext(), "Added to Wishlist!", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private int resolveThemeColor(int attr) {

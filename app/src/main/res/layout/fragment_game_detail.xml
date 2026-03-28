@@ -16,8 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:clipChildren="false">
+            android:clipChildren="false"
+            android:orientation="vertical">
 
             <!-- Image Slider -->
             <FrameLayout
@@ -475,10 +475,11 @@
             app:cardElevation="4dp">
 
             <ImageView
+                android:id="@+id/iconWishlist"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:src="@drawable/favorite_solid"
+                android:src="@drawable/favorite"
                 app:tint="?attr/colorPrimary" />
 
         </com.google.android.material.card.MaterialCardView>
