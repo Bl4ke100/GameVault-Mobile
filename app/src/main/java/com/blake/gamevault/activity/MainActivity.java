@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        saveDeviceToken();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -425,6 +426,35 @@ public class MainActivity extends AppCompatActivity
 //            });
 //        });
 //    }
+
+    private void saveDeviceToken() {
+        com.google.firebase.auth.FirebaseAuth auth = com.google.firebase.auth.FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return; // Only save if someone is logged in
+
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        android.util.Log.w("FCM", "Fetching FCM token failed", task.getException());
+                        return;
+                    }
+
+                    // Get the unique device token
+                    String token = task.getResult();
+                    String uid = auth.getCurrentUser().getUid();
+
+                    // Package it up
+                    java.util.Map<String, Object> tokenData = new java.util.HashMap<>();
+                    tokenData.put("fcmToken", token);
+
+                    // Save it to their user document in Firestore
+                    // NOTE: We use merge() so it doesn't accidentally delete their name/email!
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                            .collection("users").document(uid)
+                            .set(tokenData, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> android.util.Log.d("FCM", "Token saved successfully!"))
+                            .addOnFailureListener(e -> android.util.Log.e("FCM", "Failed to save token", e));
+                });
+    }
 
 
 
