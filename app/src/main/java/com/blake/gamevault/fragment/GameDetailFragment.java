@@ -82,8 +82,6 @@ public class GameDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().findViewById(R.id.bottomNav).setVisibility(View.GONE);
-        getActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
 
         binding.btnBack.setOnClickListener(v -> {
             requireActivity().getOnBackPressedDispatcher().onBackPressed();
@@ -93,8 +91,6 @@ public class GameDetailFragment extends Fragment {
             @Override
             public void handleOnBackPressed() {
                 requireActivity().getSupportFragmentManager().popBackStack();
-                getActivity().findViewById(R.id.bottomNav).setVisibility(View.VISIBLE);
-                getActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
             }
         });
 
@@ -457,5 +453,29 @@ public class GameDetailFragment extends Fragment {
         android.util.TypedValue typedValue = new android.util.TypedValue();
         requireContext().getTheme().resolveAttribute(attr, typedValue, true);
         return typedValue.data;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Hide bars when we enter the fragment
+        if (getActivity() != null) {
+            View bottomNav = getActivity().findViewById(R.id.bottomNav);
+            View toolBar = getActivity().findViewById(R.id.toolBar);
+            if (bottomNav != null) bottomNav.setVisibility(View.GONE);
+            if (toolBar != null) toolBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Show bars when we leave the fragment
+        if (getActivity() != null) {
+            View bottomNav = getActivity().findViewById(R.id.bottomNav);
+            View toolBar = getActivity().findViewById(R.id.toolBar);
+            if (bottomNav != null) bottomNav.setVisibility(View.VISIBLE);
+            if (toolBar != null) toolBar.setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -486,7 +486,6 @@
 
     </LinearLayout>
 
-    <!-- Bottom Action Buttons -->
     <LinearLayout
         android:id="@+id/bottomActions"
         android:layout_width="match_parent"
@@ -504,25 +503,15 @@
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
             android:text="Add to Cart"
-            android:textColor="?attr/colorPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:backgroundTint="?attr/colorSurface"
-            app:cornerRadius="12dp"
-            app:strokeColor="?attr/colorPrimary"
-            app:strokeWidth="1.5dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnBuyNow"
-            android:layout_width="0dp"
-            android:layout_height="54dp"
-            android:layout_weight="1"
-            android:text="Buy Now"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="14sp"
             android:textStyle="bold"
             app:backgroundTint="?attr/colorPrimary"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="12dp"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1.5dp" />
+
+
 
     </LinearLayout>
 

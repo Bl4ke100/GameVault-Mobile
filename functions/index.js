@@ -48,3 +48,65 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
         console.error("Error sending message:", error);
     }
 });
+
+// Broadcast Notifications to All Users
+exports.sendBroadcastNotification = onDocumentCreated(
+  "broadcasts/{broadcastId}",
+  async (event) => {
+    const data = event.data.data();
+    
+    try {
+      const usersSnap = await getFirestore().collection("users").get();
+      const tokens = [];
+      
+      usersSnap.forEach((doc) => {
+        const u = doc.data();
+        if (u && u.fcmToken) {
+          tokens.push(u.fcmToken);
+        }
+      });
+
+      if (tokens.length === 0) {
+        console.log("No valid FCM tokens registered in the DB.");
+        await event.data.ref.update({ status: "FAILED" });
+        return;
+      }
+
+      let successCount = 0;
+      for (const t of tokens) {
+        const message = {
+          notification: {
+            title: data.title || "GameVault Admin",
+            body: data.body || "New alert!"
+          },
+          android: {
+            notification: {
+              channelId: "gamevault_orders",
+              priority: "high"
+            }
+          },
+          token: t
+        };
+        try {
+          await getMessaging().send(message);
+          successCount++;
+        } catch (e) {
+          console.error("Token fail:", e);
+        }
+      }
+
+      console.log("Broadcast success! Dispatched:", successCount);
+      await event.data.ref.update({
+        status: "COMPLETED",
+        successCount: successCount
+      });
+
+    } catch (error) {
+      console.error("Fatal broadcast error:", error);
+      await event.data.ref.update({
+        status: "FAILED",
+        error: error.toString()
+      });
+    }
+  }
+);
