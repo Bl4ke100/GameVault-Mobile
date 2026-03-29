@@ -10,47 +10,65 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="6dp">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/gameImage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <View
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_gravity="top"
-            android:background="@drawable/gradient_top_scrim" />
+            android:background="@drawable/gradient_top_scrim"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <View
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_gravity="bottom"
-            android:background="@drawable/gradient_bottom_scrim" />
+            android:background="@drawable/gradient_bottom_scrim"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
             android:id="@+id/gamePrice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:layout_margin="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
             android:background="@drawable/bg_price_badge"
-            android:paddingHorizontal="10dp"
+            android:paddingHorizontal="6dp"
             android:paddingVertical="4dp"
-            android:text="LKR 0.00"
+            android:text="LKR 180000.00"
             android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:gravity="center|end"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="6sp"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeStepGranularity="1sp" />
 
         <TextView
             android:id="@+id/gameName"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:maxLines="1"
@@ -62,8 +80,11 @@
             android:text="Game Title"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

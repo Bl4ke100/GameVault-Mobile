@@ -27,6 +27,11 @@
         android:layout_marginTop="10dp"
         android:textAlignment="center"
         android:textSize="12sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:maxLines="1"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="8sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"/>
 
 </LinearLayout>

@@ -238,7 +238,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         TextView title = cardView.findViewById(R.id.homeGameTitle);
 
         title.setText(game.getTitle());
-        price.setText("LKR " + game.getPrice());
+        price.setText("LKR " + game.getPrice() + "0");
 
         // --- NEW IMAGE LOAD METHOD ---
         String posterName = game.getPosterUrl();
