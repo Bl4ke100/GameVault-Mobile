@@ -35,23 +35,44 @@ public class GameSliderAdapter extends RecyclerView.Adapter<GameSliderAdapter.Ga
 
     @Override
     public void onBindViewHolder(@NonNull GameSliderViewHolder holder, int position) {
-        // images.get(position) should now be the filename (e.g., "image1.png")
         String fileName = images.get(position);
 
-        // Build the path: images/game-images/{gameId}/{fileName}
-        String storagePath = "images/game-images/" + gameId + "/" + fileName;
+        holder.imageView.setImageResource(R.drawable.placeholder_game);
 
-        FirebaseStorage.getInstance().getReference(storagePath)
-                .getDownloadUrl()
-                .addOnSuccessListener(uri -> {
-                    Glide.with(holder.itemView.getContext())
-                            .load(uri)
-                            .placeholder(R.drawable.game) // Show a gray box while loading
-                            .error(R.drawable.close)            // Show this if path is wrong
-                            .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())
-                            .centerCrop()
-                            .into(holder.imageView);
-                });
+        if (fileName != null && fileName.startsWith("http")) {
+            Glide.with(holder.itemView)
+                    .load(fileName)
+                    .placeholder(R.drawable.placeholder_game)
+                    .error(R.drawable.close)
+                    .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())
+                    .centerCrop()
+                    .into(holder.imageView);
+        } else {
+            String storagePath = "images/game-images/" + gameId + "/" + fileName;
+
+            FirebaseStorage.getInstance().getReference(storagePath)
+                    .getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        String realUrl = uri.toString();
+
+                        try {
+                            images.set(position, realUrl);
+                        } catch (UnsupportedOperationException e) {
+                        }
+
+                        Glide.with(holder.itemView)
+                                .load(realUrl)
+                                .placeholder(R.drawable.placeholder_game)
+                                .error(R.drawable.close)
+                                .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())
+                                .centerCrop()
+                                .into(holder.imageView);
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.e("GameSliderAdapter", "Failed to fetch image: " + storagePath);
+                        holder.imageView.setImageResource(R.drawable.close);
+                    });
+        }
     }
 
     @Override

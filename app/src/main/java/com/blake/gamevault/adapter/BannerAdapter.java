@@ -27,8 +27,16 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
     @Override
     public void onBindViewHolder(@NonNull BannerViewHolder holder, int position) {
-        Glide.with(holder.itemView.getContext())
-                .load(bannerUrls.get(position))
+        String imageUrl = bannerUrls.get(position);
+
+        Glide.with(holder.itemView).clear(holder.imageView);
+
+        Glide.with(holder.itemView)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder_game) // Shows while loading
+                .error(R.drawable.placeholder_game)       // Shows if the link is broken
+                .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300)) // Smooth fade-in
+                .centerCrop()
                 .into(holder.imageView);
     }
 

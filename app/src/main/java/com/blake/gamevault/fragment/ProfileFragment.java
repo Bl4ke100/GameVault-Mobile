@@ -87,9 +87,6 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (getActivity() != null && getActivity().findViewById(R.id.toolBar) != null) {
-            getActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
-        }
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

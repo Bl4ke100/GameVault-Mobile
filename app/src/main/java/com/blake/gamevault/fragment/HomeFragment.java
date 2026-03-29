@@ -129,17 +129,19 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     .setTitle("🎲 Feeling Lucky?")
                     .setMessage("You should try: " + randomGame.getTitle())
                     .setPositiveButton("View Details", (dialog, which) -> {
-                        navigateToDetail(randomGame.getGameId());
+                        // Pass both IDs here
+                        navigateToDetail(randomGame.getGameId(), randomGame.getCategoryId());
                     })
                     .setNegativeButton("Shake Again", null)
                     .show();
         }
     }
 
-    private void navigateToDetail(String gameId) {
+    private void navigateToDetail(String gameId, String catId) {
         GameDetailFragment detailFragment = new GameDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
+        bundle.putString("catId", catId); // Added the category ID here!
         detailFragment.setArguments(bundle);
 
         getParentFragmentManager().beginTransaction()
@@ -238,11 +240,35 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         title.setText(game.getTitle());
         price.setText("LKR " + game.getPrice());
 
-        Glide.with(requireContext())
-                .load(game.getPosterUrl())
-                .into(image);
+        // --- NEW IMAGE LOAD METHOD ---
+        String posterName = game.getPosterUrl();
+        if (posterName == null || posterName.isEmpty()) {
+            posterName = "poster.png";
+        }
 
-        cardView.setOnClickListener(v -> navigateToDetail(game.getGameId()));
+        com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReference()
+                .child("images")
+                .child("game-images")
+                .child(game.getGameId())
+                .child(posterName);
+
+        // Set placeholder immediately
+        image.setImageResource(R.drawable.placeholder_game);
+
+        // Fetch URL and load with Glide
+        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            if (getContext() != null) { // Prevents crash if fragment closes before image loads
+                Glide.with(requireContext())
+                        .load(uri)
+                        .placeholder(R.drawable.placeholder_game)
+                        .error(R.drawable.placeholder_game)
+                        .into(image);
+            }
+        }).addOnFailureListener(e -> {
+            android.util.Log.e("HomeFragment", "Error loading image for " + game.getGameId() + ": " + e.getMessage());
+        });
+
+        cardView.setOnClickListener(v -> navigateToDetail(game.getGameId(), game.getCategoryId()));
 
         row.addView(cardView);
     }

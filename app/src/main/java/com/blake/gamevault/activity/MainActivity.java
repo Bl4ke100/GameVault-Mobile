@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity
             public void handleOnBackPressed() {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
+                } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
                 } else {
                     finish();
                 }
@@ -161,14 +163,12 @@ public class MainActivity extends AppCompatActivity
 
         searchTextInput = binding.searchTextInput;
 
-        // Setup the Dropdown
         android.widget.ListPopupWindow listPopupWindow = new android.widget.ListPopupWindow(this);
         listPopupWindow.setAnchorView(searchTextInput);
         java.util.List<com.blake.gamevault.model.Game> searchResults = new java.util.ArrayList<>();
         android.widget.ArrayAdapter<String> popupAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new java.util.ArrayList<>());
         listPopupWindow.setAdapter(popupAdapter);
 
-        // Handle Clicks
         listPopupWindow.setOnItemClickListener((parent, view, position, id) -> {
             com.blake.gamevault.model.Game game = searchResults.get(position);
             listPopupWindow.dismiss();
@@ -180,13 +180,21 @@ public class MainActivity extends AppCompatActivity
 
             com.blake.gamevault.fragment.GameDetailFragment detailFragment = new com.blake.gamevault.fragment.GameDetailFragment();
             detailFragment.setArguments(bundle);
-            loadFragment(detailFragment);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainer, detailFragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
-        // Search logic
         searchTextInput.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(android.text.Editable s) {
@@ -261,16 +269,13 @@ public class MainActivity extends AppCompatActivity
     private void setStatusBarColor() {
         int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
 
-        // Get the window controller
         androidx.core.view.WindowInsetsControllerCompat windowController =
                 androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
 
         if (currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_NO) {
-            // Light mode: Make status bar white and icons dark
             getWindow().setStatusBarColor(getResources().getColor(R.color.pure_white));
             windowController.setAppearanceLightStatusBars(true);
         } else {
-            // Dark mode: Make status bar black and icons light
             getWindow().setStatusBarColor(getResources().getColor(R.color.void_black));
             windowController.setAppearanceLightStatusBars(false);
         }
@@ -455,7 +460,6 @@ public class MainActivity extends AppCompatActivity
                             .addOnFailureListener(e -> android.util.Log.e("FCM", "Failed to save token", e));
                 });
     }
-
 
 
 }

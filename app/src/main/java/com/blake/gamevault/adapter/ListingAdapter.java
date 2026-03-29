@@ -51,20 +51,45 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
         holder.resetPosition(); // Reset translation for the recycled view
 
-        String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
+        // 1. Get the current poster string
+        String posterName = game.getPosterUrl();
+        if (posterName == null || posterName.isEmpty()) {
+            posterName = "poster.png";
+        }
 
-        com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
-                .getDownloadUrl()
-                .addOnSuccessListener(uri -> {
-                    Glide.with(holder.itemView.getContext())
-                            .load(uri)
-                            .centerCrop() // Fills the space to allow for movement
-                            .into(holder.gameImage);
+        // 2. CACHING TRICK: Has it already been converted to a real web link?
+        if (posterName.startsWith("http")) {
+            // Awesome! We already fetched this URL. Load it instantly from Glide's memory.
+            Glide.with(holder.itemView.getContext())
+                    .load(posterName)
+                    .centerCrop()
+                    .into(holder.gameImage);
 
-                    holder.gameImage.setScaleX(1.03f);
-                    holder.gameImage.setScaleY(1.03f);
-                })
-                .addOnFailureListener(e -> Log.e("StorageError", "No image for: " + game.getGameId()));
+            holder.gameImage.setScaleX(1.03f);
+            holder.gameImage.setScaleY(1.03f);
+
+        } else {
+            // It's still just "poster.png". We need to fetch the real URL from Firebase.
+            String storagePath = "images/game-images/" + game.getGameId() + "/" + posterName;
+
+            com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                    .getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        String realUrl = uri.toString();
+
+                        // SAVE IT BACK TO THE OBJECT! Next time you scroll, it skips the network call.
+                        game.setPosterUrl(realUrl);
+
+                        Glide.with(holder.itemView.getContext())
+                                .load(realUrl)
+                                .centerCrop()
+                                .into(holder.gameImage);
+
+                        holder.gameImage.setScaleX(1.03f);
+                        holder.gameImage.setScaleY(1.03f);
+                    })
+                    .addOnFailureListener(e -> Log.e("StorageError", "No image for: " + game.getGameId()));
+        }
 
         CardFlipAnimator.attach(holder.itemView, () -> {
             if (listener != null) {

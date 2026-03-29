@@ -32,14 +32,14 @@
                 <!-- Top fade -->
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="80dp"
                     android:layout_gravity="top"
                     android:background="@drawable/gradient_poster_fade_top" />
 
                 <!-- Bottom fade -->
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="80dp"
                     android:layout_gravity="bottom"
                     android:background="@drawable/gradient_poster_fade" />
 
