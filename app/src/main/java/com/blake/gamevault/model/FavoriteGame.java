@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 public class FavoriteGame {
     @PrimaryKey(autoGenerate = false)
     @androidx.annotation.NonNull
-    private String gameId; // Use the Firestore Document ID as the Key
+    private String gameId;
 
     private String title;
     private String price;
@@ -20,7 +20,6 @@ public class FavoriteGame {
         this.imageUrl = imageUrl;
     }
 
-    // Getters and Setters (Required by Room)
     public String getGameId() { return gameId; }
     public String getTitle() { return title; }
     public String getPrice() { return price; }

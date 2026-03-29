@@ -33,8 +33,8 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
         Glide.with(holder.itemView)
                 .load(imageUrl)
-                .placeholder(R.drawable.placeholder_game) // Shows while loading
-                .error(R.drawable.placeholder_game)       // Shows if the link is broken
+                .placeholder(R.drawable.placeholder_game)
+                .error(R.drawable.placeholder_game)
                 .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300)) // Smooth fade-in
                 .centerCrop()
                 .into(holder.imageView);

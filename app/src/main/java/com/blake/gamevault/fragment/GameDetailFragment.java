@@ -66,7 +66,6 @@ public class GameDetailFragment extends Fragment {
             catId = getArguments().getString("catId");
         }
 
-
     }
 
     @Override
@@ -95,7 +94,6 @@ public class GameDetailFragment extends Fragment {
         });
 
 
-        //load game details
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("games")
@@ -223,19 +221,17 @@ public class GameDetailFragment extends Fragment {
 
         checkFavoriteStatus(db);
 
-        // 2. Attach the click listener to the wishlist button
         binding.btnWishlist.setOnClickListener(v -> {
             toggleFavorite(db);
         });
 
-        // ... (The rest of your existing code fetching the game details)
     }
 
     private void loadSimilarProducts() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("games")
-                .whereEqualTo("categoryId", catId) // Assuming catId is available
+                .whereEqualTo("categoryId", catId)
                 .get()
                 .addOnSuccessListener(qds -> {
                     if (qds != null && !qds.isEmpty()) {
@@ -372,7 +368,6 @@ public class GameDetailFragment extends Fragment {
     }
 
     private void checkFavoriteStatus(FirebaseFirestore db) {
-        // 1. Check Local SQLite (Room) first for instant UI response
         AppDatabase localDb = AppDatabase.getInstance(requireContext());
         isFavorite = localDb.favoriteDao().isFavorite(gameId);
         updateWishlistIcon();
@@ -387,13 +382,10 @@ public class GameDetailFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     boolean firebaseFavorite = documentSnapshot.exists();
 
-                    // If Local and Firebase are out of sync, update Local
                     if (firebaseFavorite != isFavorite) {
                         isFavorite = firebaseFavorite;
                         updateWishlistIcon();
-                        // Update SQLite to match Firebase
                         if (isFavorite) {
-                            // You'd need to fetch the game object to save full details
                         } else {
                             localDb.favoriteDao().removeFavoriteById(gameId);
                         }
@@ -412,28 +404,22 @@ public class GameDetailFragment extends Fragment {
         String uid = auth.getCurrentUser().getUid();
 
         if (isFavorite) {
-            // REMOVE logic
             isFavorite = false;
             updateWishlistIcon(); // Instant UI feedback
 
-            // Update SQLite
             localDb.favoriteDao().removeFavoriteById(gameId);
 
-            // Update Firebase
             db.collection("users").document(uid).collection("favorites").document(gameId)
                     .delete()
                     .addOnSuccessListener(unused -> Toast.makeText(getContext(), "Removed from Wishlist", Toast.LENGTH_SHORT).show());
         } else {
-            // ADD logic
             isFavorite = true;
             updateWishlistIcon(); // Instant UI feedback
 
-            // Update SQLite (Saving basic info for offline viewing)
             FavoriteGame fav = new FavoriteGame(gameId, binding.gameName.getText().toString(),
                     binding.gamePrice.getText().toString(), ""); // Add poster URL if you have it
             localDb.favoriteDao().addFavorite(fav);
 
-            // Update Firebase
             Map<String, Object> favData = new HashMap<>();
             favData.put("gameId", gameId);
             favData.put("addedAt", System.currentTimeMillis());
@@ -444,7 +430,6 @@ public class GameDetailFragment extends Fragment {
         }
     }
 
-    // Helper to keep the UI code clean
     private void updateWishlistIcon() {
         binding.iconWishlist.setImageResource(isFavorite ? R.drawable.favorite_solid : R.drawable.favorite);
     }
@@ -458,7 +443,6 @@ public class GameDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Hide bars when we enter the fragment
         if (getActivity() != null) {
             View bottomNav = getActivity().findViewById(R.id.bottomNav);
             View toolBar = getActivity().findViewById(R.id.toolBar);
@@ -470,7 +454,6 @@ public class GameDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Show bars when we leave the fragment
         if (getActivity() != null) {
             View bottomNav = getActivity().findViewById(R.id.bottomNav);
             View toolBar = getActivity().findViewById(R.id.toolBar);

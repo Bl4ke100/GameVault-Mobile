@@ -19,7 +19,6 @@
             android:clipChildren="false"
             android:orientation="vertical">
 
-            <!-- Image Slider -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="320dp">
@@ -29,14 +28,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-                <!-- Top fade -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
                     android:layout_gravity="top"
                     android:background="@drawable/gradient_poster_fade_top" />
 
-                <!-- Bottom fade -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
@@ -75,7 +72,6 @@
 
             </HorizontalScrollView>
 
-            <!-- Content -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,7 +112,6 @@
 
                 </LinearLayout>
 
-                <!-- Rating Row -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -143,7 +138,6 @@
 
                 </LinearLayout>
 
-                <!-- Price Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -162,14 +156,12 @@
 
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="20dp"
                     android:background="?attr/dividerColor" />
 
-                <!-- Info Grid -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -272,14 +264,12 @@
 
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="20dp"
                     android:background="?attr/dividerColor" />
 
-                <!-- Description -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -301,7 +291,6 @@
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="14sp" />
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -309,14 +298,12 @@
                     android:layout_marginBottom="20dp"
                     android:background="?attr/dividerColor" />
 
-                <!-- Platform / Attributes Container -->
                 <LinearLayout
                     android:id="@+id/detailPlatformContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -324,7 +311,6 @@
                     android:layout_marginBottom="20dp"
                     android:background="?attr/dividerColor" />
 
-                <!-- Availability -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -356,7 +342,6 @@
 
                 </LinearLayout>
 
-                <!-- Quantity -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -424,7 +409,6 @@
 
                 </LinearLayout>
 
-                <!-- Divider -->
             </LinearLayout>
 
             <include
@@ -434,7 +418,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Floating Back + Wishlist buttons -->
     <LinearLayout
         android:id="@+id/btnRow"
         android:layout_width="match_parent"

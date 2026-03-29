@@ -43,26 +43,21 @@ public class SimilarGameAdapter extends RecyclerView.Adapter<SimilarGameAdapter.
         holder.gameTitle.setText(game.getTitle());
         holder.gamePrice.setText("LKR " + game.getPrice() + "0");
 
-        // 1. Clear old image so recycled views don't show the wrong game momentarily
         Glide.with(holder.itemView).clear(holder.gameImage);
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
 
-        // 2. Get the poster name (default to poster.png if missing)
         String posterName = game.getPosterUrl();
         if (posterName == null || posterName.isEmpty()) {
             posterName = "poster.png";
         }
 
-        // 3. CACHING TRICK: Did we already fetch this URL?
         if (posterName.startsWith("http")) {
-            // Yes! Load instantly from memory.
             Glide.with(holder.itemView)
                     .load(posterName)
                     .placeholder(R.drawable.placeholder_game)
                     .centerCrop()
                     .into(holder.gameImage);
         } else {
-            // No. Fetch from Firebase Storage.
             String posterPath = "images/game-images/" + game.getGameId() + "/" + posterName;
 
             FirebaseStorage.getInstance().getReference(posterPath)
@@ -70,10 +65,8 @@ public class SimilarGameAdapter extends RecyclerView.Adapter<SimilarGameAdapter.
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
-                        // Save it back to the game object to skip the network call next time
                         game.setPosterUrl(realUrl);
 
-                        // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
                                 .placeholder(R.drawable.placeholder_game)

@@ -19,7 +19,6 @@ public class GameSliderAdapter extends RecyclerView.Adapter<GameSliderAdapter.Ga
     private List<String> images;
     private String gameId; // We need this to find the folder in Storage
 
-    // Update constructor to accept gameId
     public GameSliderAdapter(List<String> images, String gameId) {
         this.images = images;
         this.gameId = gameId;

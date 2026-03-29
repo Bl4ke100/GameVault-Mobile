@@ -54,7 +54,6 @@ public class WishlistFragment extends Fragment {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
 
-        // 1. Get the list of Favorite Game IDs
         db.collection("users").document(uid).collection("favorites")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
@@ -66,7 +65,7 @@ public class WishlistFragment extends Fragment {
                     showEmptyState(false);
                     List<String> gameIds = new ArrayList<>();
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        gameIds.add(doc.getId()); // We used gameId as the document ID!
+                        gameIds.add(doc.getId());
                     }
 
                     fetchGameDetails(gameIds);
@@ -77,10 +76,9 @@ public class WishlistFragment extends Fragment {
     private void fetchGameDetails(List<String> gameIds) {
         favoriteGames.clear();
 
-        // Fetch each game individually to bypass the 10-item limit of 'whereIn'
         for (int i = 0; i < gameIds.size(); i++) {
             String id = gameIds.get(i);
-            int finalI = i; // Needed for the inner callback
+            int finalI = i;
 
             db.collection("games").whereEqualTo("gameId", id).get()
                     .addOnSuccessListener(gameSnap -> {
@@ -89,7 +87,6 @@ public class WishlistFragment extends Fragment {
                             if (game != null) favoriteGames.add(game);
                         }
 
-                        // Once the last query finishes, set the adapter
                         if (finalI == gameIds.size() - 1) {
                             setupAdapter();
                         }
@@ -106,7 +103,6 @@ public class WishlistFragment extends Fragment {
         adapter = new FavoriteAdapter(favoriteGames, new FavoriteAdapter.OnFavoriteClickListener() {
             @Override
             public void onGameClick(Game game) {
-                // Navigate to Game Detail
                 Bundle bundle = new Bundle();
                 bundle.putString("gameId", game.getGameId());
                 bundle.putString("catId", game.getCategoryId());
@@ -132,15 +128,12 @@ public class WishlistFragment extends Fragment {
     private void removeFavorite(Game game, int position) {
         String uid = auth.getCurrentUser().getUid();
 
-        // 1. Delete from Firestore
         db.collection("users").document(uid).collection("favorites").document(game.getGameId())
                 .delete()
                 .addOnSuccessListener(unused -> {
-                    // 2. Remove from RecyclerView dynamically
                     adapter.removeGame(position);
                     Toast.makeText(getContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
 
-                    // 3. Check if list is empty now
                     if (favoriteGames.isEmpty()) {
                         showEmptyState(true);
                     }

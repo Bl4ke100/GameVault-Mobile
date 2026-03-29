@@ -46,35 +46,28 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         Category category = categories.get(position);
         holder.catName.setText(category.getName());
 
-        // 1. Clear old image so recycled views don't show the wrong category
         Glide.with(holder.itemView).clear(holder.catImage);
-        holder.catImage.setImageResource(R.drawable.placeholder_game); // Use a category placeholder if you have one!
+        holder.catImage.setImageResource(R.drawable.placeholder_game);
 
         String imagePath = category.getImageUrl();
         if (imagePath == null || imagePath.isEmpty()) {
-            imagePath = "default.png"; // Fallback just in case
+            imagePath = "default.png";
         }
 
-        // 2. CACHING TRICK: Did we already fetch this URL?
         if (imagePath.startsWith("http")) {
-            // Yes! Load instantly from memory.
             Glide.with(holder.itemView)
                     .load(imagePath)
                     .placeholder(R.drawable.placeholder_game)
                     .centerCrop()
                     .into(holder.catImage);
         } else {
-            // No. Fetch from Firebase Storage.
-            // Note: I removed the "/" you had before imagePath, getReference handles it better without it!
             storage.getReference(imagePath)
                     .getDownloadUrl()
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
-                        // Save it back to the object to skip the network call next time
                         category.setImageUrl(realUrl);
 
-                        // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
                                 .placeholder(R.drawable.placeholder_game)

@@ -6,7 +6,6 @@
     android:background="?android:attr/windowBackground"
     android:orientation="vertical">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,13 +23,11 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/surface_light" />
 
-    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyState"
         android:layout_width="match_parent"
@@ -65,7 +62,6 @@
 
     </LinearLayout>
 
-    <!-- Orders List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/purchaseHistoryRecycler"
         android:layout_width="match_parent"

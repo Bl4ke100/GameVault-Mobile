@@ -38,8 +38,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
     private FragmentHomeBinding binding;
     private FirebaseFirestore db;
-
-    // Shake Sensor Variables
     private SensorManager sensorManager;
     private float acceleration = 0f;
     private float currentAcceleration = 0f;
@@ -51,7 +49,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        // Initialize Sensors
         sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
         lastAcceleration = SensorManager.GRAVITY_EARTH;
         currentAcceleration = SensorManager.GRAVITY_EARTH;
@@ -67,7 +64,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         db = FirebaseFirestore.getInstance();
         com.google.firebase.storage.FirebaseStorage storage = com.google.firebase.storage.FirebaseStorage.getInstance();
 
-        // 1. Fetch Top Banners
         storage.getReference().child("images/banners").listAll().addOnSuccessListener(listResult -> {
             List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
@@ -82,7 +78,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             }
         });
 
-        // 2. Fetch New Arrivals Banners
         storage.getReference().child("images/new-arrivals").listAll().addOnSuccessListener(listResult -> {
             List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
@@ -102,7 +97,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         loadNewArrivals();
     }
 
-    // ===== SHAKE LOGIC =====
     @Override
     public void onSensorChanged(SensorEvent event) {
         float x = event.values[0];
@@ -114,7 +108,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         float delta = currentAcceleration - lastAcceleration;
         acceleration = acceleration * 0.9f + delta;
 
-        if (acceleration > 10) { // Sensitivity threshold
+        if (acceleration > 10) {
             pickRandomGame();
             acceleration = 0;
         }
@@ -129,7 +123,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     .setTitle("🎲 Feeling Lucky?")
                     .setMessage("You should try: " + randomGame.getTitle())
                     .setPositiveButton("View Details", (dialog, which) -> {
-                        // Pass both IDs here
                         navigateToDetail(randomGame.getGameId(), randomGame.getCategoryId());
                     })
                     .setNegativeButton("Shake Again", null)
@@ -141,7 +134,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         GameDetailFragment detailFragment = new GameDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
-        bundle.putString("catId", catId); // Added the category ID here!
+        bundle.putString("catId", catId);
         detailFragment.setArguments(bundle);
 
         getParentFragmentManager().beginTransaction()
@@ -153,7 +146,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    // ===== FEATURED GAMES =====
     private void loadFeaturedGames() {
         db.collection("games")
                 .get()
@@ -161,7 +153,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     if (querySnapshot.isEmpty()) return;
 
                     List<Game> games = querySnapshot.toObjects(Game.class);
-                    this.allGamesList = games; // Store all games for the shake feature
+                    this.allGamesList = games;
 
                     List<Game> featured = new ArrayList<>(games);
                     java.util.Collections.shuffle(featured);
@@ -181,7 +173,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // ===== NEW ARRIVALS =====
     private void loadNewArrivals() {
         db.collection("games")
                 .orderBy("releasedYear", Query.Direction.DESCENDING)
@@ -204,7 +195,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // ===== CATEGORIES =====
     private void loadCategories() {
         db.collection("categories")
                 .get()
@@ -228,7 +218,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 });
     }
 
-    // ===== HELPER: Add Game Card =====
     private void addGameCard(LinearLayout row, Game game) {
         View cardView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_home_game, row, false);
@@ -240,7 +229,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         title.setText(game.getTitle());
         price.setText("LKR " + game.getPrice() + "0");
 
-        // --- NEW IMAGE LOAD METHOD ---
         String posterName = game.getPosterUrl();
         if (posterName == null || posterName.isEmpty()) {
             posterName = "poster.png";
@@ -252,12 +240,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 .child(game.getGameId())
                 .child(posterName);
 
-        // Set placeholder immediately
         image.setImageResource(R.drawable.placeholder_game);
 
-        // Fetch URL and load with Glide
         storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            if (getContext() != null) { // Prevents crash if fragment closes before image loads
+            if (getContext() != null) {
                 Glide.with(requireContext())
                         .load(uri)
                         .placeholder(R.drawable.placeholder_game)
@@ -273,7 +259,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         row.addView(cardView);
     }
 
-    // ===== BANNER SLIDER SETUP =====
     private void setupSlider(ViewPager2 slider, com.tbuonomo.viewpagerdotsindicator.DotsIndicator dots, List<String> urls) {
         BannerAdapter adapter = new BannerAdapter(urls);
         slider.setAdapter(adapter);
@@ -306,7 +291,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // Lifecycle Management
     @Override
     public void onResume() {
         super.onResume();

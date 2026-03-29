@@ -65,7 +65,6 @@ public class CartFragment extends Fragment {
                         @Override
                         public void onSuccess(QuerySnapshot qds) {
 
-                            // Handle completely empty cart on first load
                             if (qds.isEmpty()) {
                                 cartItems = new ArrayList<>();
                                 updateEmptyState();
@@ -119,7 +118,7 @@ public class CartFragment extends Fragment {
                             });
 
                             binding.cartRecyclerView.setAdapter(adapter);
-                            updateEmptyState(); // Update UI after setting adapter
+                            updateEmptyState();
                         }
                     });
         }
@@ -133,7 +132,6 @@ public class CartFragment extends Fragment {
         });
 
         binding.btnBrowseGames.setOnClickListener(v -> {
-            // Replace ShopFragment with whatever your home/games fragment is called
             ShopFragment shopFragment = new ShopFragment();
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, shopFragment)
@@ -142,7 +140,6 @@ public class CartFragment extends Fragment {
 
     }
 
-    // Drop this helper method anywhere inside your CartFragment class
     private void updateEmptyState() {
         if (cartItems == null || cartItems.isEmpty()) {
             binding.cartRecyclerView.setVisibility(View.GONE);

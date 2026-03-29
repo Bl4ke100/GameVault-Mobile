@@ -50,7 +50,6 @@ public class OrdersFragment extends Fragment {
 
         String uid = firebaseAuth.getCurrentUser().getUid();
 
-        // Fetch orders for this user, newest first
         db.collection("orders")
                 .whereEqualTo("userId", uid)
                 .orderBy("orderDate", Query.Direction.DESCENDING)
@@ -68,10 +67,8 @@ public class OrdersFragment extends Fragment {
                     List<Order> orders = querySnapshot.toObjects(Order.class);
 
                     OrderAdapter adapter = new OrderAdapter(orders, order -> {
-                        // Handle View Details click
                         Toast.makeText(getContext(), "Clicked Order: " + order.getOrderId(), Toast.LENGTH_SHORT).show();
 
-                        // You can navigate to an OrderDetailFragment here later
                     });
 
                     binding.purchaseHistoryRecycler.setAdapter(adapter);

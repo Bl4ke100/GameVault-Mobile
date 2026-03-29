@@ -443,16 +443,12 @@ public class MainActivity extends AppCompatActivity
                         return;
                     }
 
-                    // Get the unique device token
                     String token = task.getResult();
                     String uid = auth.getCurrentUser().getUid();
 
-                    // Package it up
                     java.util.Map<String, Object> tokenData = new java.util.HashMap<>();
                     tokenData.put("fcmToken", token);
 
-                    // Save it to their user document in Firestore
-                    // NOTE: We use merge() so it doesn't accidentally delete their name/email!
                     com.google.firebase.firestore.FirebaseFirestore.getInstance()
                             .collection("users").document(uid)
                             .set(tokenData, com.google.firebase.firestore.SetOptions.merge())

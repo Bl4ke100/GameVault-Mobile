@@ -51,11 +51,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         Context context = holder.itemView.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        // Header Data
         holder.orderIdText.setText("#" + order.getOrderId());
         holder.orderTotalText.setText(String.format(Locale.US, "LKR %,.2f", order.getTotalAmount()));
 
-        // Status Colors
         holder.orderStatusBadge.setText(order.getStatus());
         if ("CANCELLED".equalsIgnoreCase(order.getStatus())) {
             holder.orderStatusBadge.setBackgroundColor(Color.parseColor("#D32F2F")); // Red for cancelled
@@ -63,11 +61,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             holder.orderStatusBadge.setBackgroundResource(R.drawable.bg_stock_badge);
         }
 
-        // Date Format
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
         holder.orderDateText.setText(sdf.format(new Date(order.getOrderDate())));
 
-        // Clear dynamic views
         holder.orderItemsContainer.removeAllViews();
 
         if (order.getOrderItems() != null && !order.getOrderItems().isEmpty()) {
@@ -76,17 +72,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 gameIds.add(item.getGameId());
             }
 
-            // Fetch games to get titles and images
             db.collection("games").whereIn("gameId", gameIds).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
 
-                        // Map games for easy lookup
                         Map<String, Game> gameMap = new HashMap<>();
                         for (Game game : queryDocumentSnapshots.toObjects(Game.class)) {
                             gameMap.put(game.getGameId(), game);
                         }
 
-                        // Loop through actual order items and inflate rows
                         for (Order.OrderItem item : order.getOrderItems()) {
                             View rowView = inflater.inflate(R.layout.item_order_game_row, holder.orderItemsContainer, false);
 
@@ -96,7 +89,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                             TextView price = rowView.findViewById(R.id.rowGamePrice);
                             TextView qty = rowView.findViewById(R.id.rowGameQty);
 
-                            // Set Math details
                             price.setText(String.format(Locale.US, "LKR %,.2f", item.getUnitPrice()));
                             qty.setText("Qty: " + item.getQty());
 
@@ -112,12 +104,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                             }
                             platformText.setText(platform);
 
-                            // Apply Fetched Game Details
                             Game game = gameMap.get(item.getGameId());
                             if (game != null) {
                                 title.setText(game.getTitle());
 
-                                // --- NEW IMAGE LOADING LOGIC ---
                                 String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
 
                                 com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
@@ -131,10 +121,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                                         .addOnFailureListener(e -> {
                                             android.util.Log.e("OrderAdapter", "Failed to load poster for: " + game.getTitle());
                                         });
-                                // -------------------------------
                             }
 
-                            // Add the row to the container!
                             holder.orderItemsContainer.addView(rowView);
                         }
                     });

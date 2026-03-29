@@ -72,7 +72,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                             holder.gameQty.setText(String.valueOf(cartItem.getQty()));
                             holder.gamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice() * cartItem.getQty()));
 
-                            // --- RESTORED PLATFORM LOGIC ---
                             String selectedPlatform = "PC"; // Default fallback
                             if (cartItem.getAttributes() != null) {
                                 for (CartItem.Attribute attr : cartItem.getAttributes()) {
@@ -83,9 +82,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                                 }
                             }
                             holder.gamePlatform.setText(selectedPlatform);
-                            // -------------------------------
 
-                            // --- NEW IMAGE LOADING LOGIC ---
                             String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
 
                             com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
@@ -99,9 +96,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                                     .addOnFailureListener(e -> {
                                         Log.e("CartAdapter", "Failed to load poster for: " + game.getTitle());
                                     });
-                            // -------------------------------
 
-                            // Buttons
                             holder.btnPlus.setOnClickListener(v -> {
                                 if (cartItem.getQty() < game.getStock()) {
                                     cartItem.setQty(cartItem.getQty() + 1);

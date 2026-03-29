@@ -39,7 +39,6 @@ public class EditProfileFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Hide toolbar if needed
         if (getActivity() != null && getActivity().findViewById(R.id.toolBar) != null) {
             getActivity().findViewById(R.id.toolBar).setVisibility(View.GONE);
         }
@@ -57,18 +56,15 @@ public class EditProfileFragment extends Fragment {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
 
-        // Pre-fill email from Auth as a fallback
         binding.updateInputEmail.setText(auth.getCurrentUser().getEmail());
 
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && binding != null) {
 
-                        // Username (Read-only)
                         String username = documentSnapshot.getString("username");
                         if (username != null) binding.updateInputUsername.setText(username);
 
-                        // Personal Info
                         String name = documentSnapshot.getString("name");
                         if (name != null) binding.updateInputFullName.setText(name);
 
@@ -78,7 +74,6 @@ public class EditProfileFragment extends Fragment {
                         String phone = documentSnapshot.getString("phone");
                         if (phone != null) binding.updateInputPhone.setText(phone);
 
-                        // Billing Details
                         String address1 = documentSnapshot.getString("addressLine1");
                         if (address1 != null) binding.updateInputAddressLine1.setText(address1);
 
@@ -111,7 +106,6 @@ public class EditProfileFragment extends Fragment {
             return false;
         }
 
-        // Clear errors if valid
         binding.updateInputEmail.setError(null);
         binding.updateInputPhone.setError(null);
 
@@ -134,13 +128,12 @@ public class EditProfileFragment extends Fragment {
         updates.put("city", binding.updateInputCity.getText().toString().trim());
         updates.put("postalCode", binding.updateInputPostalCode.getText().toString().trim());
 
-        // SetOptions.merge() creates the fields if they don't exist yet!
         db.collection("users").document(uid)
                 .set(updates, SetOptions.merge())
                 .addOnSuccessListener(unused -> {
                     if (getContext() != null) {
                         Toast.makeText(getContext(), "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack(); // Go back to the previous screen
+                        getParentFragmentManager().popBackStack();
                     }
                 })
                 .addOnFailureListener(e -> {

@@ -10,7 +10,7 @@ import android.view.animation.OvershootInterpolator;
 
 public class CardFlipAnimator {
 
-    private static final int DURATION_IN  = 200;
+    private static final int DURATION_IN = 200;
     private static final int DURATION_OUT = 250;
 
     public static void attach(View card, Runnable onClick) {
@@ -31,7 +31,6 @@ public class CardFlipAnimator {
     }
 
     private static void animateLift(View v) {
-        // bring this card to the front so it overlaps siblings
         v.bringToFront();
         if (v.getParent() instanceof ViewGroup) {
             ((ViewGroup) v.getParent()).invalidate();
@@ -39,32 +38,30 @@ public class CardFlipAnimator {
 
         AnimatorSet set = new AnimatorSet();
         set.playTogether(
-                ObjectAnimator.ofFloat(v, "scaleX",       1f,   1.15f),
-                ObjectAnimator.ofFloat(v, "scaleY",       1f,   1.15f),
-                ObjectAnimator.ofFloat(v, "translationZ", 0f,   24f),
-                ObjectAnimator.ofFloat(v, "translationY", 0f,  -12f),
-                ObjectAnimator.ofFloat(v, "alpha",        1f,   1f)
+                ObjectAnimator.ofFloat(v, "scaleX", 1f, 1.15f),
+                ObjectAnimator.ofFloat(v, "scaleY", 1f, 1.15f),
+                ObjectAnimator.ofFloat(v, "translationZ", 0f, 24f),
+                ObjectAnimator.ofFloat(v, "translationY", 0f, -12f),
+                ObjectAnimator.ofFloat(v, "alpha", 1f, 1f)
         );
         set.setDuration(DURATION_IN);
         set.setInterpolator(new AccelerateDecelerateInterpolator());
         set.start();
 
-        // dim siblings
     }
 
     private static void animateDrop(View v, Runnable onClick) {
         AnimatorSet set = new AnimatorSet();
         set.playTogether(
-                ObjectAnimator.ofFloat(v, "scaleX",       1.15f, 1f),
-                ObjectAnimator.ofFloat(v, "scaleY",       1.15f, 1f),
-                ObjectAnimator.ofFloat(v, "translationZ", 24f,   0f),
-                ObjectAnimator.ofFloat(v, "translationY", -12f,  0f)
+                ObjectAnimator.ofFloat(v, "scaleX", 1.15f, 1f),
+                ObjectAnimator.ofFloat(v, "scaleY", 1.15f, 1f),
+                ObjectAnimator.ofFloat(v, "translationZ", 24f, 0f),
+                ObjectAnimator.ofFloat(v, "translationY", -12f, 0f)
         );
         set.setDuration(DURATION_OUT);
         set.setInterpolator(new OvershootInterpolator(1.5f));
         set.start();
 
-        // restore siblings
 
         if (onClick != null) {
             set.addListener(new android.animation.AnimatorListenerAdapter() {

@@ -198,12 +198,10 @@ public class CheckoutFragment extends Fragment {
                         if (response != null && response.isSuccess()) {
                             StatusResponse statusResponse = response.getData();
 
-                            // Payment was successful, save the order with a "PAID" status
                             saveOrder(statusResponse, "PAID");
                             Log.i("PayHere", "Payment Successful");
                             Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_SHORT).show();
                         } else {
-                            // The PayHere result was not a success, save as "CANCELLED"
                             saveCancelledOrder();
                             Log.i("PayHere", "Payment not a success or response is null");
                             Toast.makeText(getContext(), "Payment Failed or Cancelled.", Toast.LENGTH_SHORT).show();
@@ -211,27 +209,21 @@ public class CheckoutFragment extends Fragment {
                     }
 
                 } else {
-                    // Result code is not RESULT_OK, meaning user cancelled or an error occurred before reaching payment
                     saveCancelledOrder();
                     Toast.makeText(getContext(), "Payment Failed!", Toast.LENGTH_SHORT).show();
                 }
             });
 
-    /**
-     * Correct and fixed version of saveOrder
-     * Moves order creation and library/cart updates OUTSIDE of loops and into a WriteBatch for simultaneous execution.
-     */
     private void saveOrder(StatusResponse statusResponse, String status) {
         getCartItems(cartItems -> {
 
             String uid = firebaseAuth.getCurrentUser().getUid();
 
             Order order = new Order();
-            // User generated Order ID as doc ID for predictability
             order.setOrderId(String.valueOf(System.currentTimeMillis()));
             order.setUserId(uid);
             order.setTotalAmount(subTotal);
-            order.setStatus(status); // Use the parameter passed in
+            order.setStatus(status);
             order.setOrderDate(Timestamp.now().toDate().getTime());
 
             String name = binding.checkoutInputFullName.getText().toString();
@@ -258,11 +250,9 @@ public class CheckoutFragment extends Fragment {
                 gameIds.add(cartItem.getGameId());
             }
 
-            // Move the logic inside getGamesById so we can construct all OrderItems
             getGamesById(gameIds, data -> {
                 List<Order.OrderItem> orderItems = new ArrayList<>();
 
-                // 1. Build the Order Items List (Iterating over cart items)
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
                     if (game != null) {
@@ -289,31 +279,25 @@ public class CheckoutFragment extends Fragment {
                     }
                 }
 
-                // Associate the compiled list of items with the order
                 order.setOrderItems(orderItems);
 
-                // 2. Save the SINGLE Order document (now OUTSIDE of the loops!)
                 db.collection("orders")
                         .document(order.getOrderId()) // Good practice to use your generated ID as the doc ID
                         .set(order)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(getContext(), "Order Placed Successfully!", Toast.LENGTH_SHORT).show();
 
-                            // 3. Initialize a WriteBatch to simultaneously update Library and clear Cart
                             WriteBatch batch = db.batch();
 
-                            // Add purchased products to the library collection under the user
                             for (CartItem item : cartItems) {
                                 Map<String, Object> libraryData = new HashMap<>();
                                 libraryData.put("gameId", item.getGameId());
                                 libraryData.put("purchaseDate", order.getOrderDate());
 
-                                // Save using gameId as the document name so duplicates aren't created in library
                                 batch.set(db.collection("users").document(uid)
                                         .collection("library").document(item.getGameId()), libraryData);
                             }
 
-                            // Fetch cart items again within success callback to get document references for deletion
                             db.collection("users").document(uid).collection("cart")
                                     .get()
                                     .addOnSuccessListener(qsd -> {
@@ -335,10 +319,7 @@ public class CheckoutFragment extends Fragment {
         });
     }
 
-    /**
-     * Helper to save a CANCELLED order without a statusResponse.
-     * Doesn't add games to library or clear cart.
-     */
+
     private void saveCancelledOrder() {
         if (firebaseAuth.getCurrentUser() == null) return;
 
@@ -347,14 +328,12 @@ public class CheckoutFragment extends Fragment {
             String uid = firebaseAuth.getCurrentUser().getUid();
 
             Order order = new Order();
-            // User generated Order ID as doc ID
             order.setOrderId(String.valueOf(System.currentTimeMillis()));
             order.setUserId(uid);
             order.setTotalAmount(subTotal);
             order.setStatus("CANCELLED"); // Set as cancelled
             order.setOrderDate(Timestamp.now().toDate().getTime());
 
-            // Get billing data from views
             String name = binding.checkoutInputFullName.getText().toString();
             String email = binding.checkoutInputEmail.getText().toString();
             String phone = binding.checkoutInputPhone.getText().toString();
@@ -382,7 +361,6 @@ public class CheckoutFragment extends Fragment {
             getGamesById(gameIds, data -> {
                 List<Order.OrderItem> orderItems = new ArrayList<>();
 
-                // Build the Order Items List
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
                     if (game != null) {
@@ -411,7 +389,6 @@ public class CheckoutFragment extends Fragment {
 
                 order.setOrderItems(orderItems);
 
-                // Save the cancelled order to Firestore purchase history
                 db.collection("orders")
                         .document(order.getOrderId())
                         .set(order)
@@ -468,7 +445,6 @@ public class CheckoutFragment extends Fragment {
         if (firebaseAuth.getCurrentUser() == null) return;
         String uid = firebaseAuth.getCurrentUser().getUid();
 
-        // Fallback to the Auth email just in case
         binding.checkoutInputEmail.setText(firebaseAuth.getCurrentUser().getEmail());
 
         db.collection("users").document(uid).get()

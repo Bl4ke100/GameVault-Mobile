@@ -33,14 +33,12 @@ public class ProfileFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
-    // Image Picker Launcher
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri uri = result.getData().getData();
 
-                    // 1. Show the image instantly using Glide
                     if (getContext() != null && binding != null) {
                         Glide.with(getContext())
                                 .load(uri)
@@ -49,7 +47,6 @@ public class ProfileFragment extends Fragment {
                                 .into(binding.profileImage);
                     }
 
-                    // 2. Upload to Firebase Storage
                     String imageId = UUID.randomUUID().toString();
                     FirebaseStorage storage = FirebaseStorage.getInstance();
                     StorageReference imageReference = storage.getReference("/images/profile-images/").child(imageId);
@@ -58,10 +55,9 @@ public class ProfileFragment extends Fragment {
 
                     imageReference.putFile(uri)
                             .addOnSuccessListener(taskSnapshot -> {
-                                // 3. Update the Firestore user document with the new imageId
                                 db.collection("users")
                                         .document(auth.getUid())
-                                        .update("profilePicUrl", imageId) // Using the exact field name from MainActivity
+                                        .update("profilePicUrl", imageId)
                                         .addOnSuccessListener(aVoid -> {
                                             if (getContext() != null) {
                                                 Toast.makeText(getContext(), "Profile Picture Updated", Toast.LENGTH_SHORT).show();
@@ -93,40 +89,32 @@ public class ProfileFragment extends Fragment {
 
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
-            // Failsafe: if somehow reached without being logged in
             startActivity(new Intent(getActivity(), LoginActivity.class));
             requireActivity().finish();
             return;
         }
 
-        // 1. Load User Profile Info
         loadUserProfile(currentUser);
 
-        // 2. Load Account Stats
         loadAccountStats(currentUser.getUid());
 
-        // 3. Setup Click Listeners
         setupClickListeners();
     }
 
     private void loadUserProfile(FirebaseUser currentUser) {
-        // Fallback to Auth data first
         binding.profileEmail.setText(currentUser.getEmail());
         if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
             binding.profileName.setText(currentUser.getDisplayName());
         }
 
-        // Fetch custom data from Firestore users collection
         db.collection("users").document(currentUser.getUid())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && binding != null) {
-                        // Look for username or name
                         String name = documentSnapshot.getString("username");
                         if (name == null) name = documentSnapshot.getString("name");
                         if (name != null) binding.profileName.setText(name);
 
-                        // Load the image using the UUID from Firestore + Firebase Storage
                         String profilePicUrl = documentSnapshot.getString("profilePicUrl");
 
                         if (profilePicUrl != null && !profilePicUrl.isEmpty() && getContext() != null) {
@@ -147,19 +135,16 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadAccountStats(String uid) {
-        // Count Orders
         db.collection("orders").whereEqualTo("userId", uid).get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (binding != null) binding.statOrders.setText(String.valueOf(querySnapshot.size()));
                 });
 
-        // Count Games Owned (Library)
         db.collection("users").document(uid).collection("library").get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (binding != null) binding.statGamesOwned.setText(String.valueOf(querySnapshot.size()));
                 });
 
-        // Count Wishlist (Favorites)
         db.collection("users").document(uid).collection("favorites").get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (binding != null) binding.statWishlist.setText(String.valueOf(querySnapshot.size()));
@@ -167,7 +152,6 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        // Edit Photo - Launches the Image Picker
         binding.btnEditPhoto.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -175,7 +159,6 @@ public class ProfileFragment extends Fragment {
             imagePickerLauncher.launch(intent);
         });
 
-        // Edit Profile
         binding.btnEditProfile.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new EditProfileFragment())
@@ -188,12 +171,10 @@ public class ProfileFragment extends Fragment {
             bottomSheet.show(getParentFragmentManager(), "ChangePasswordBottomSheet");
         });
 
-        // Privacy Policy
         binding.btnPrivacyPolicy.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Privacy Policy clicked", Toast.LENGTH_SHORT).show();
         });
 
-        // About
         binding.btnAbout.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, new AboutFragment())
@@ -201,14 +182,11 @@ public class ProfileFragment extends Fragment {
                     .commit();
         });
 
-        // Logout
         binding.btnLogout.setOnClickListener(v -> {
             auth.signOut();
             Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
 
-            // Redirect to Login
             Intent intent = new Intent(getActivity(), LoginActivity.class);
-            // Clear the backstack so they can't press 'back' to return to the profile
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             requireActivity().finish();

@@ -9,7 +9,6 @@
     tools:context=".fragment.CartFragment">
 
 
-    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -60,7 +59,6 @@
 
     </LinearLayout>
 
-    <!-- Cart Items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/cartRecyclerView"
         android:layout_width="match_parent"
@@ -70,7 +68,6 @@
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp" />
 
-    <!-- Bottom Summary -->
     <LinearLayout
         android:id="@+id/bottomSummaryLayout"
         android:layout_width="match_parent"
@@ -78,7 +75,6 @@
         android:orientation="vertical"
         android:background="?android:attr/windowBackground">
 
-        <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -92,7 +88,6 @@
             android:paddingTop="16dp"
             android:paddingBottom="8dp">
 
-            <!-- Item Count Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -119,7 +114,6 @@
 
             </LinearLayout>
 
-            <!-- Total Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -147,7 +141,6 @@
 
             </LinearLayout>
 
-            <!-- Proceed Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnProceedToCheckout"
                 android:layout_width="match_parent"
