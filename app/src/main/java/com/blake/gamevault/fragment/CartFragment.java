@@ -65,12 +65,7 @@ public class CartFragment extends Fragment {
                         @Override
                         public void onSuccess(QuerySnapshot qds) {
 
-<<<<<<< HEAD
-                            // 🛑 THE SHIELD
-                            if (!isAdded() || binding == null) return;
-
-=======
->>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
+                            // Handle completely empty cart on first load
                             if (qds.isEmpty()) {
                                 cartItems = new ArrayList<>();
                                 updateEmptyState();
@@ -84,6 +79,7 @@ public class CartFragment extends Fragment {
                                 if (cartItem != null) {
                                     String documentId = ds.getId();
                                     cartItem.setDocumentId(documentId);
+
                                     cartItems.add(cartItem);
                                 }
                             }
@@ -101,9 +97,7 @@ public class CartFragment extends Fragment {
                                         .collection("cart").document(documentId)
                                         .update("qty", cartItem.getQty())
                                         .addOnSuccessListener(aVoid -> {
-                                            if (isAdded() && getContext() != null) {
-                                                Toast.makeText(getContext(), "Item Quantity Changed!", Toast.LENGTH_SHORT).show();
-                                            }
+                                            Toast.makeText(getContext(), "Item Quantity Changed!", Toast.LENGTH_SHORT).show();
                                         });
 
                                 updateTotal();
@@ -114,24 +108,18 @@ public class CartFragment extends Fragment {
                                 db.collection("users").document(uid)
                                         .collection("cart").document(documentId)
                                         .delete().addOnSuccessListener(aVoid -> {
-
-                                            // 🛑 THE SHIELD
-                                            if (!isAdded() || binding == null) return;
-
                                             cartItems.remove(position);
                                             adapter.notifyItemRemoved(position);
                                             adapter.notifyItemRangeChanged(position, cartItems.size());
                                             updateTotal();
-                                            updateEmptyState();
-
-                                            if (getContext() != null) {
-                                                Toast.makeText(getContext(), "Item Removed From Cart!", Toast.LENGTH_SHORT).show();
-                                            }
+                                            updateEmptyState(); // Update UI when an item is removed
+                                            Toast.makeText(getContext(), "Item Removed From Cart!", Toast.LENGTH_SHORT).show();
                                         });
+
                             });
 
                             binding.cartRecyclerView.setAdapter(adapter);
-                            updateEmptyState();
+                            updateEmptyState(); // Update UI after setting adapter
                         }
                     });
         }
@@ -145,13 +133,16 @@ public class CartFragment extends Fragment {
         });
 
         binding.btnBrowseGames.setOnClickListener(v -> {
+            // Replace ShopFragment with whatever your home/games fragment is called
             ShopFragment shopFragment = new ShopFragment();
             getParentFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainer, shopFragment)
                     .commit();
         });
+
     }
 
+    // Drop this helper method anywhere inside your CartFragment class
     private void updateEmptyState() {
         if (cartItems == null || cartItems.isEmpty()) {
             binding.cartRecyclerView.setVisibility(View.GONE);
@@ -167,9 +158,7 @@ public class CartFragment extends Fragment {
 
     private void updateTotal() {
         if (cartItems == null || cartItems.isEmpty()) {
-            if (binding != null) {
-                binding.cartTotalAmount.setText(String.format(Locale.US, "LKR %,.2f", 0.00));
-            }
+            binding.cartTotalAmount.setText(String.format(Locale.US, "LKR %,.2f", 0.00));
             return;
         }
 
@@ -186,9 +175,6 @@ public class CartFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot qds) {
-
-                        // 🛑 THE SHIELD
-                        if (!isAdded() || binding == null) return;
 
                         Map<String, Game> gameMap = new HashMap<>();
 
@@ -215,14 +201,9 @@ public class CartFragment extends Fragment {
                             totalQty += item.getQty();
                         }
                         binding.cartItemCount.setText(String.valueOf(totalQty));
+
                     }
                 });
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 
 

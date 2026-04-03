@@ -3,8 +3,6 @@ package com.blake.gamevault.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,40 +44,38 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         Category category = categories.get(position);
         holder.catName.setText(category.getName());
 
+        // Clear recycled image
         Glide.with(holder.itemView).clear(holder.catImage);
         holder.catImage.setImageResource(R.drawable.placeholder_game);
 
         String imagePath = category.getImageUrl();
+
+        // 1. Fallback if path is missing (Update default to webp)
         if (imagePath == null || imagePath.isEmpty()) {
-            imagePath = "default.png";
+            imagePath = "default.webp";
         }
 
+        // 2. INSTANT LOAD: If it's a full URL (The new way)
         if (imagePath.startsWith("http")) {
-<<<<<<< HEAD
-            // Yes! Load instantly from memory/disk.
-=======
->>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
             Glide.with(holder.itemView)
                     .load(imagePath)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.placeholder_game)
                     .centerCrop()
                     .into(holder.catImage);
         } else {
-<<<<<<< HEAD
-            // No. Fetch from Firebase Storage.
-=======
->>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
+            // 3. FALLBACK: Fetch from Storage (The old way)
             storage.getReference(imagePath)
                     .getDownloadUrl()
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
+                        // Save the URL to the object to skip this next time
                         category.setImageUrl(realUrl);
 
                         Glide.with(holder.itemView)
                                 .load(realUrl)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .placeholder(R.drawable.placeholder_game)
                                 .centerCrop()
                                 .into(holder.catImage);
@@ -102,7 +98,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         ImageView catImage;
         TextView catName;
 
