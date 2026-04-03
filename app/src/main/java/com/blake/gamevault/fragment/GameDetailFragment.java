@@ -66,7 +66,6 @@ public class GameDetailFragment extends Fragment {
             catId = getArguments().getString("catId");
         }
 
-
     }
 
     @Override
@@ -94,6 +93,11 @@ public class GameDetailFragment extends Fragment {
             }
         });
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("games")
                 .whereEqualTo("gameId", gameId)
@@ -229,6 +233,10 @@ public class GameDetailFragment extends Fragment {
         binding.btnWishlist.setOnClickListener(v -> {
             toggleFavorite(db);
         });
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
     }
 
     private void loadSimilarProducts() {
@@ -394,7 +402,12 @@ public class GameDetailFragment extends Fragment {
                     if (firebaseFavorite != isFavorite) {
                         isFavorite = firebaseFavorite;
                         updateWishlistIcon();
+<<<<<<< HEAD
                         if (!isFavorite) {
+=======
+                        if (isFavorite) {
+                        } else {
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
                             localDb.favoriteDao().removeFavoriteById(gameId);
                         }
                     }
@@ -412,28 +425,22 @@ public class GameDetailFragment extends Fragment {
         String uid = auth.getCurrentUser().getUid();
 
         if (isFavorite) {
-            // REMOVE logic
             isFavorite = false;
             updateWishlistIcon(); // Instant UI feedback
 
-            // Update SQLite
             localDb.favoriteDao().removeFavoriteById(gameId);
 
-            // Update Firebase
             db.collection("users").document(uid).collection("favorites").document(gameId)
                     .delete()
                     .addOnSuccessListener(unused -> Toast.makeText(getContext(), "Removed from Wishlist", Toast.LENGTH_SHORT).show());
         } else {
-            // ADD logic
             isFavorite = true;
             updateWishlistIcon(); // Instant UI feedback
 
-            // Update SQLite (Saving basic info for offline viewing)
             FavoriteGame fav = new FavoriteGame(gameId, binding.gameName.getText().toString(),
                     binding.gamePrice.getText().toString(), ""); // Add poster URL if you have it
             localDb.favoriteDao().addFavorite(fav);
 
-            // Update Firebase
             Map<String, Object> favData = new HashMap<>();
             favData.put("gameId", gameId);
             favData.put("addedAt", System.currentTimeMillis());
@@ -444,7 +451,6 @@ public class GameDetailFragment extends Fragment {
         }
     }
 
-    // Helper to keep the UI code clean
     private void updateWishlistIcon() {
         binding.iconWishlist.setImageResource(isFavorite ? R.drawable.favorite_solid : R.drawable.favorite);
     }
@@ -458,7 +464,6 @@ public class GameDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Hide bars when we enter the fragment
         if (getActivity() != null) {
             View bottomNav = getActivity().findViewById(R.id.bottomNav);
             View toolBar = getActivity().findViewById(R.id.toolBar);
@@ -470,7 +475,6 @@ public class GameDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Show bars when we leave the fragment
         if (getActivity() != null) {
             View bottomNav = getActivity().findViewById(R.id.bottomNav);
             View toolBar = getActivity().findViewById(R.id.toolBar);

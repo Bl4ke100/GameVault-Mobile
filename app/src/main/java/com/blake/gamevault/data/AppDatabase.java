@@ -17,7 +17,7 @@ public abstract class AppDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "gamevault_db")
                     .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries() // Only for testing! We should use Threads later.
+                    .allowMainThreadQueries()
                     .build();
         }
         return instance;

@@ -34,10 +34,16 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
         Glide.with(holder.itemView)
                 .load(imageUrl)
+<<<<<<< HEAD
                 .diskCacheStrategy(DiskCacheStrategy.ALL) // Caches the banner instantly
                 .placeholder(R.drawable.placeholder_game)
                 .error(R.drawable.placeholder_game)
                 .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300))
+=======
+                .placeholder(R.drawable.placeholder_game)
+                .error(R.drawable.placeholder_game)
+                .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300)) // Smooth fade-in
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
                 .centerCrop()
                 .into(holder.imageView);
     }

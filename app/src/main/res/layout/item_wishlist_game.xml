@@ -14,28 +14,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Poster Image -->
         <ImageView
             android:id="@+id/favGameImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-        <!-- Top gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="top"
             android:background="@drawable/gradient_top_scrim" />
 
-        <!-- Bottom gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="bottom"
             android:background="@drawable/gradient_bottom_scrim" />
 
-        <!-- Game Title - top start -->
         <TextView
             android:id="@+id/favGameTitle"
             android:layout_width="match_parent"
@@ -54,7 +50,6 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- Remove Button - top end -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btnRemoveFav"
             android:layout_width="30dp"
@@ -75,7 +70,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Price Badge - bottom end -->
         <TextView
             android:id="@+id/favGamePrice"
             android:layout_width="wrap_content"

@@ -143,9 +143,12 @@ public class WishlistFragment extends Fragment {
         db.collection("users").document(uid).collection("favorites").document(game.getGameId())
                 .delete()
                 .addOnSuccessListener(unused -> {
+<<<<<<< HEAD
                     // 🛑 THE SHIELD
                     if (!isAdded() || binding == null) return;
 
+=======
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
                     adapter.removeGame(position);
                     Toast.makeText(getContext(), "Removed from favorites", Toast.LENGTH_SHORT).show();
 

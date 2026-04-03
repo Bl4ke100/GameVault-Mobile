@@ -21,10 +21,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Profile Picture -->
 
 
-            <!-- Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,7 +46,6 @@
                 android:background="@color/surface_light"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Account Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,7 +55,6 @@
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Username (uneditable) -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -94,7 +90,6 @@
                 android:background="@color/surface_light"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Personal Info Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -104,7 +99,6 @@
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Full Name -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -128,7 +122,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Email -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -152,7 +145,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Phone -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -182,7 +174,6 @@
                 android:background="@color/surface_light"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Billing Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -192,7 +183,6 @@
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Address Line 1 -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -216,7 +206,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Address Line 2 -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -240,7 +229,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- City + Postal Code -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -298,7 +286,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Save Button -->
     <LinearLayout
         android:id="@+id/btnSaveProfile"
         android:layout_width="match_parent"

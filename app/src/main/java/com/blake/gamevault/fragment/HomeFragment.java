@@ -37,8 +37,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
     private FragmentHomeBinding binding;
     private FirebaseFirestore db;
-
-    // Shake Sensor Variables
     private SensorManager sensorManager;
     private float acceleration = 0f;
     private float currentAcceleration = 0f;
@@ -54,7 +52,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        // Initialize Sensors
         sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
         lastAcceleration = SensorManager.GRAVITY_EARTH;
         currentAcceleration = SensorManager.GRAVITY_EARTH;
@@ -70,7 +67,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         db = FirebaseFirestore.getInstance();
         com.google.firebase.storage.FirebaseStorage storage = com.google.firebase.storage.FirebaseStorage.getInstance();
 
-        // 1. Fetch Top Banners
         storage.getReference().child("images/banners").listAll().addOnSuccessListener(listResult -> {
             if (!isAdded() || binding == null) return; // THE SHIELD
 
@@ -89,7 +85,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             }
         });
 
-        // 2. Fetch New Arrivals Banners
         storage.getReference().child("images/new-arrivals").listAll().addOnSuccessListener(listResult -> {
             if (!isAdded() || binding == null) return; // THE SHIELD
 
@@ -113,7 +108,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         loadNewArrivals();
     }
 
-    // ===== SHAKE LOGIC =====
     @Override
     public void onSensorChanged(SensorEvent event) {
         float x = event.values[0];
@@ -163,7 +157,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    // ===== FEATURED GAMES =====
     private void loadFeaturedGames() {
         db.collection("games")
                 .get()
@@ -193,7 +186,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // ===== NEW ARRIVALS =====
     private void loadNewArrivals() {
         db.collection("games")
                 .orderBy("releasedYear", Query.Direction.DESCENDING)
@@ -218,7 +210,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // ===== CATEGORIES =====
     private void loadCategories() {
         db.collection("categories")
                 .get()
@@ -244,7 +235,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 });
     }
 
-    // ===== HELPER: Add Game Card =====
     private void addGameCard(LinearLayout row, Game game) {
         if (!isAdded() || getContext() == null) return; // Extra safety
 
@@ -272,6 +262,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         image.setImageResource(R.drawable.placeholder_game);
 
         storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+<<<<<<< HEAD
             // THE SHIELD (Plus swapped requireContext() for getContext() safety)
             if (!isAdded() || getContext() == null || binding == null) return;
 
@@ -281,6 +272,15 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     .error(R.drawable.placeholder_game)
                     .into(image);
 
+=======
+            if (getContext() != null) {
+                Glide.with(requireContext())
+                        .load(uri)
+                        .placeholder(R.drawable.placeholder_game)
+                        .error(R.drawable.placeholder_game)
+                        .into(image);
+            }
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
         }).addOnFailureListener(e -> {
             android.util.Log.e("HomeFragment", "Error loading image for " + game.getGameId() + ": " + e.getMessage());
         });
@@ -290,7 +290,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         row.addView(cardView);
     }
 
-    // ===== BANNER SLIDER SETUP =====
     private void setupSlider(ViewPager2 slider, com.tbuonomo.viewpagerdotsindicator.DotsIndicator dots, List<String> urls) {
         BannerAdapter adapter = new BannerAdapter(urls);
         slider.setAdapter(adapter);
@@ -324,7 +323,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    // Lifecycle Management
     @Override
     public void onResume() {
         super.onResume();

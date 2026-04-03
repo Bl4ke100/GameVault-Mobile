@@ -66,16 +66,14 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
             btnUpdatePassword.setEnabled(false);
             btnUpdatePassword.setText("Verifying...");
 
-            // Step 1: Re-authenticate the user
             AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPass);
 
             user.reauthenticate(credential).addOnSuccessListener(unused -> {
-                // Step 2: Actually update the password
                 btnUpdatePassword.setText("Updating...");
 
                 user.updatePassword(newPass).addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Password updated successfully", Toast.LENGTH_SHORT).show();
-                    dismiss(); // Close the bottom sheet
+                    dismiss();
                 }).addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Failed to update password: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     resetButton();

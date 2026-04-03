@@ -43,21 +43,18 @@ public class AboutFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void setupContactButtons() {
-        // 1. Email Intent
         binding.btnContactEmail.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:" + binding.aboutEmail.getText().toString()));
             startActivity(Intent.createChooser(intent, "Send Email"));
         });
 
-        // 2. Phone Intent
         binding.btnContactPhone.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_DIAL);
             intent.setData(Uri.parse("tel:" + binding.aboutPhone.getText().toString()));
             startActivity(intent);
         });
 
-        // 3. Website Intent
         binding.btnContactWebsite.setOnClickListener(v -> {
             openUrl("https://github.com/Bl4ke100"); // Using your GitHub as a placeholder
         });

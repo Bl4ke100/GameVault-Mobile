@@ -46,18 +46,19 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         Category category = categories.get(position);
         holder.catName.setText(category.getName());
 
-        // 1. Clear old image so recycled views don't show the wrong category
         Glide.with(holder.itemView).clear(holder.catImage);
-        holder.catImage.setImageResource(R.drawable.placeholder_game); // Use a category placeholder if you have one!
+        holder.catImage.setImageResource(R.drawable.placeholder_game);
 
         String imagePath = category.getImageUrl();
         if (imagePath == null || imagePath.isEmpty()) {
-            imagePath = "default.png"; // Fallback just in case
+            imagePath = "default.png";
         }
 
-        // 2. CACHING TRICK: Did we already fetch this URL?
         if (imagePath.startsWith("http")) {
+<<<<<<< HEAD
             // Yes! Load instantly from memory/disk.
+=======
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
             Glide.with(holder.itemView)
                     .load(imagePath)
                     .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
@@ -65,16 +66,17 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                     .centerCrop()
                     .into(holder.catImage);
         } else {
+<<<<<<< HEAD
             // No. Fetch from Firebase Storage.
+=======
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
             storage.getReference(imagePath)
                     .getDownloadUrl()
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
-                        // Save it back to the object to skip the network call next time
                         category.setImageUrl(realUrl);
 
-                        // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
                                 .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED

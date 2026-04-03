@@ -14,28 +14,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Poster Image -->
         <ImageView
             android:id="@+id/libraryGameImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop" />
 
-        <!-- Top gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="top"
             android:background="@drawable/gradient_top_scrim" />
 
-        <!-- Bottom gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="bottom"
             android:background="@drawable/gradient_bottom_scrim" />
 
-        <!-- Game Title - top -->
         <TextView
             android:id="@+id/libraryGameTitle"
             android:layout_width="match_parent"
@@ -54,7 +50,6 @@
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <!-- View Keys Button - center bottom -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRevealKey"
             android:layout_width="wrap_content"

@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
-        <!-- ===== PROFILE HEADER ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,7 +22,6 @@
             android:paddingBottom="24dp"
             android:paddingHorizontal="20dp">
 
-            <!-- Profile Picture -->
             <FrameLayout
                 android:layout_width="96dp"
                 android:layout_height="96dp"
@@ -47,7 +45,6 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Edit Photo Button -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnEditPhoto"
                     android:layout_width="28dp"
@@ -69,7 +66,6 @@
 
             </FrameLayout>
 
-            <!-- Name -->
             <TextView
                 android:id="@+id/profileName"
                 android:layout_width="wrap_content"
@@ -80,7 +76,6 @@
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Email -->
             <TextView
                 android:id="@+id/profileEmail"
                 android:layout_width="wrap_content"
@@ -91,7 +86,6 @@
 
         </LinearLayout>
 
-        <!-- ===== ACCOUNT STATS ===== -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -109,7 +103,6 @@
                 android:orientation="horizontal"
                 android:paddingVertical="16dp">
 
-                <!-- Total Orders -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -137,13 +130,11 @@
 
                 </LinearLayout>
 
-                <!-- Vertical Divider -->
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
                     android:background="@color/surface_light" />
 
-                <!-- Games Owned -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -171,13 +162,11 @@
 
                 </LinearLayout>
 
-                <!-- Vertical Divider -->
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
                     android:background="@color/surface_light" />
 
-                <!-- Wishlist -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -209,7 +198,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== ACCOUNT SETTINGS ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -236,7 +224,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Edit Profile -->
                 <LinearLayout
                     android:id="@+id/btnEditProfile"
                     android:layout_width="match_parent"
@@ -269,14 +256,12 @@
 
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- Change Password -->
                 <LinearLayout
                     android:id="@+id/btnChangePassword"
                     android:layout_width="match_parent"
@@ -313,7 +298,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== MORE ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -340,7 +324,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Privacy Policy -->
                 <LinearLayout
                     android:id="@+id/btnPrivacyPolicy"
                     android:layout_width="match_parent"
@@ -373,14 +356,12 @@
 
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- About -->
                 <LinearLayout
                     android:id="@+id/btnAbout"
                     android:layout_width="match_parent"
@@ -417,7 +398,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== LOGOUT ===== -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             android:layout_width="match_parent"

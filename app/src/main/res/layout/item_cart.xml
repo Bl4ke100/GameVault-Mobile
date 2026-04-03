@@ -19,7 +19,6 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
-        <!-- Game Poster -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="80dp"
             android:layout_height="100dp"
@@ -35,7 +34,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Game Info -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -44,7 +42,6 @@
             android:layout_marginStart="14dp"
             android:layout_marginEnd="8dp">
 
-            <!-- Title -->
             <TextView
                 android:id="@+id/cartItemTitle"
                 android:layout_width="match_parent"
@@ -58,7 +55,6 @@
                 android:lineSpacingMultiplier="1.2"
                 android:layout_marginBottom="6dp" />
 
-            <!-- Platform Badge -->
             <TextView
                 android:id="@+id/cartItemPlatform"
                 android:layout_width="wrap_content"
@@ -72,7 +68,6 @@
                 android:paddingVertical="3dp"
                 android:layout_marginBottom="10dp" />
 
-            <!-- Unit Price -->
             <TextView
                 android:id="@+id/cartItemUnitPrice"
                 android:layout_width="wrap_content"
@@ -82,7 +77,6 @@
                 android:textColor="?attr/colorSurface"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Subtotal -->
             <TextView
                 android:id="@+id/cartItemSubtotal"
                 android:layout_width="wrap_content"
@@ -94,14 +88,12 @@
 
         </LinearLayout>
 
-        <!-- Right Controls -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="top|center_horizontal">
 
-            <!-- Remove Button -->
             <ImageButton
                 android:id="@+id/cartItemRemove"
                 android:layout_width="32dp"
@@ -112,13 +104,11 @@
                 app:tint="?attr/colorPrimary"
                 android:layout_marginLeft="30dp"/>
 
-            <!-- Spacer to push quantity to bottom -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <!-- Quantity Selector -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

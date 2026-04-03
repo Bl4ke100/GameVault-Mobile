@@ -195,12 +195,10 @@ public class CheckoutFragment extends Fragment {
                         if (response != null && response.isSuccess()) {
                             StatusResponse statusResponse = response.getData();
 
-                            // Payment was successful, save the order with a "PAID" status
                             saveOrder(statusResponse, "PAID");
                             Log.i("PayHere", "Payment Successful");
                             Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_SHORT).show();
                         } else {
-                            // The PayHere result was not a success, save as "CANCELLED"
                             saveCancelledOrder();
                             Log.i("PayHere", "Payment not a success or response is null");
                             Toast.makeText(getContext(), "Payment Failed or Cancelled.", Toast.LENGTH_SHORT).show();
@@ -208,16 +206,11 @@ public class CheckoutFragment extends Fragment {
                     }
 
                 } else {
-                    // Result code is not RESULT_OK, meaning user cancelled or an error occurred before reaching payment
                     saveCancelledOrder();
                     Toast.makeText(getContext(), "Payment Failed!", Toast.LENGTH_SHORT).show();
                 }
             });
 
-    /**
-     * Correct and fixed version of saveOrder
-     * Moves order creation and library/cart updates OUTSIDE of loops and into a WriteBatch for simultaneous execution.
-     */
     private void saveOrder(StatusResponse statusResponse, String status) {
         getCartItems(cartItems -> {
             // 🛑 THE SHIELD
@@ -332,10 +325,7 @@ public class CheckoutFragment extends Fragment {
         });
     }
 
-    /**
-     * Helper to save a CANCELLED order without a statusResponse.
-     * Doesn't add games to library or clear cart.
-     */
+
     private void saveCancelledOrder() {
         if (firebaseAuth.getCurrentUser() == null) return;
 
@@ -468,7 +458,6 @@ public class CheckoutFragment extends Fragment {
         if (firebaseAuth.getCurrentUser() == null) return;
         String uid = firebaseAuth.getCurrentUser().getUid();
 
-        // Fallback to the Auth email just in case
         binding.checkoutInputEmail.setText(firebaseAuth.getCurrentUser().getEmail());
 
         db.collection("users").document(uid).get()

@@ -14,7 +14,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
 
-        // If the token changes, update it in Firestore silently
         com.google.firebase.auth.FirebaseAuth auth = com.google.firebase.auth.FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
             String uid = auth.getCurrentUser().getUid();
@@ -31,13 +30,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String title = "GameVault Alert";
         String body = "You have a new message!";
 
-        // Grab the text from the Firebase payload
         if (remoteMessage.getNotification() != null) {
             title = remoteMessage.getNotification().getTitle();
             body = remoteMessage.getNotification().getBody();
         }
 
-        // Fire the manual notification
         showForegroundNotification(title, body);
     }
 
@@ -46,26 +43,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         android.app.NotificationManager notificationManager =
                 (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // 1. Create the Notification Channel (Required for Android 8.0+)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             android.app.NotificationChannel channel = new android.app.NotificationChannel(
                     channelId,
                     "Order Updates",
-                    android.app.NotificationManager.IMPORTANCE_HIGH // HIGH importance forces the heads-up drop-down!
+                    android.app.NotificationManager.IMPORTANCE_HIGH
             );
             channel.setDescription("Notifications for successful orders");
             notificationManager.createNotificationChannel(channel);
         }
 
-        // 2. Build the visual banner
         androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.game) // Make sure you use a valid icon from your drawable folder
+                .setSmallIcon(R.drawable.game)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(androidx.core.app.NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
 
-        // 3. Display it!
         int notificationId = (int) System.currentTimeMillis();
         notificationManager.notify(notificationId, builder.build());
     }

@@ -7,7 +7,6 @@
     android:background="?android:attr/windowBackground"
     tools:context=".fragment.CheckoutFragment">
 
-    <!-- Scrollable Form -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,7 +21,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,7 +44,6 @@
                 android:background="@color/surface_light"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Personal Info Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,7 +53,6 @@
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Full Name -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -80,7 +76,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Email -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -104,7 +99,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Phone -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -134,7 +128,6 @@
                 android:background="@color/surface_light"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Address Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -144,7 +137,6 @@
                 android:letterSpacing="0.12"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Address Line 1 -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -168,7 +160,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Address Line 2 -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -192,7 +183,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- City + Postal Code -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -250,7 +240,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Summary + Button -->
     <LinearLayout
         android:id="@+id/bottomSummary"
         android:layout_width="match_parent"
@@ -272,7 +261,6 @@
             android:paddingTop="14dp"
             android:paddingBottom="12dp">
 
-            <!-- Items Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -299,7 +287,6 @@
 
             </LinearLayout>
 
-            <!-- Total Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -327,7 +314,6 @@
 
             </LinearLayout>
 
-            <!-- Place Order Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirmOrder"
                 android:layout_width="match_parent"

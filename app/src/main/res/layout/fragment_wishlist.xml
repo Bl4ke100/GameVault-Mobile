@@ -7,7 +7,6 @@
     android:orientation="vertical">
 
 
-    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/favEmptyState"
         android:layout_width="match_parent"
@@ -42,7 +41,6 @@
 
     </LinearLayout>
 
-    <!-- Game Grid -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/favRecycler"
         android:layout_width="match_parent"

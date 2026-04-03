@@ -235,7 +235,6 @@ public class GamesFragment extends Fragment {
 //        });
 
 
-        //Repeated games cleaner
         db.collection("games").get().addOnSuccessListener(queryDocumentSnapshots -> {
 
             if (!isAdded() || binding == null) return;
@@ -249,11 +248,9 @@ public class GamesFragment extends Fragment {
 
                 if (title != null) {
                     if (seenTitles.contains(title)) {
-                        // It's a duplicate, mark it for deletion
                         batch.delete(doc.getReference());
                         deleteCount++;
                     } else {
-                        // First time seeing this title, add it to our tracking set
                         seenTitles.add(title);
                     }
                 }
@@ -404,9 +401,7 @@ public class GamesFragment extends Fragment {
             }
         });
 
-        // ... Keep your existing Duplicate Cleaner code here ...
 
-        // 5. Update your Firestore fetch calls to populate the lists
         Query query = (catId != null)
                 ? db.collection("games").whereEqualTo("categoryId", catId).orderBy("title", Query.Direction.ASCENDING)
                 : db.collection("games").orderBy("title", Query.Direction.ASCENDING);

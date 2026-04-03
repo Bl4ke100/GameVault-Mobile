@@ -45,19 +45,19 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
         // Fixed the currency formatting to be bulletproof!
         holder.gamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice()));
 
-        // 1. Clear old image so recycled views don't show the wrong game
         Glide.with(holder.itemView).clear(holder.gameImage);
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
 
-        // 2. Get the poster name (default to poster.png if missing)
         String posterName = game.getPosterUrl();
         if (posterName == null || posterName.isEmpty()) {
             posterName = "poster.png";
         }
 
-        // 3. CACHING TRICK: Did we already fetch this URL?
         if (posterName.startsWith("http")) {
+<<<<<<< HEAD
             // Yes! Load instantly from Glide's disk/memory cache
+=======
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
             Glide.with(holder.itemView)
                     .load(posterName)
                     .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
@@ -66,7 +66,6 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
                     .centerCrop()
                     .into(holder.gameImage);
         } else {
-            // No. Fetch the actual URL from Firebase Storage
             String storagePath = "images/game-images/" + game.getGameId() + "/" + posterName;
 
             com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
@@ -74,10 +73,8 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
-                        // Save it back to the game object to skip the network call next time!
                         game.setPosterUrl(realUrl);
 
-                        // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
                                 .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED

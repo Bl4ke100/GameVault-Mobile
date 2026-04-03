@@ -19,7 +19,6 @@ import java.util.List;
 
 public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.KeyViewHolder> {
 
-    // A simple inner class to hold our generated key data
     public static class KeyData {
         public String platform;
         public String date;
@@ -57,7 +56,6 @@ public class KeyAdapter extends RecyclerView.Adapter<KeyAdapter.KeyViewHolder> {
         holder.keyCopyLabel.setText("COPY " + data.copyNumber);
         holder.keyCode.setText(data.keyString);
 
-        // Copy to clipboard functionality
         holder.btnCopyKey.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Game Key", data.keyString);

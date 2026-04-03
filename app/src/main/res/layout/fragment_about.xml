@@ -13,18 +13,15 @@
         android:orientation="vertical"
         android:paddingBottom="32dp">
 
-        <!-- ===== HERO SECTION ===== -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="200dp">
 
-            <!-- Background Banner -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="?attr/colorPrimary" />
 
-            <!-- App Logo -->
             <ImageView
                 android:id="@+id/aboutAppLogo"
                 android:layout_width="80dp"
@@ -34,14 +31,12 @@
                 android:src="@mipmap/ic_launcher"
                 android:scaleType="fitCenter" />
 
-            <!-- Bottom fade -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_poster_fade" />
 
-            <!-- App Name -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -54,7 +49,6 @@
 
         </FrameLayout>
 
-        <!-- Version + Tagline -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,7 +84,6 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="24dp" />
 
-        <!-- ===== DEVELOPER INFO ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -119,7 +112,6 @@
                 android:padding="16dp"
                 android:gravity="center_vertical">
 
-                <!-- Developer Avatar -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="56dp"
                     android:layout_height="56dp"
@@ -137,7 +129,6 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Developer Details -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -167,7 +158,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== CONTACT ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -194,7 +184,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Email -->
                 <LinearLayout
                     android:id="@+id/btnContactEmail"
                     android:layout_width="match_parent"
@@ -249,7 +238,6 @@
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- Phone -->
                 <LinearLayout
                     android:id="@+id/btnContactPhone"
                     android:layout_width="match_parent"
@@ -304,7 +292,6 @@
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- Website -->
                 <LinearLayout
                     android:id="@+id/btnContactWebsite"
                     android:layout_width="match_parent"
@@ -357,7 +344,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== LOCATION ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -384,13 +370,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Map View -->
                 <com.google.android.gms.maps.MapView
                     android:id="@+id/aboutMapView"
                     android:layout_width="match_parent"
                     android:layout_height="180dp" />
 
-                <!-- Address Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -421,7 +405,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== SOCIAL ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -448,7 +431,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Instagram -->
                 <LinearLayout
                     android:id="@+id/btnSocialInstagram"
                     android:layout_width="match_parent"
@@ -486,7 +468,6 @@
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- LinkedIn -->
                 <LinearLayout
                     android:id="@+id/btnSocialLinkedIn"
                     android:layout_width="match_parent"
@@ -524,7 +505,6 @@
                     android:background="@color/surface_light"
                     android:layout_marginHorizontal="16dp" />
 
-                <!-- GitHub -->
                 <LinearLayout
                     android:id="@+id/btnSocialGitHub"
                     android:layout_width="match_parent"
@@ -560,7 +540,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== COPYRIGHT ===== -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -64,7 +64,6 @@ public class LibraryFragment extends Fragment {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
 
-        // 1. Fetch unique game IDs from the user's library collection
         db.collection("users").document(uid).collection("library")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
@@ -86,7 +85,6 @@ public class LibraryFragment extends Fragment {
                         gameIds.add(doc.getString("gameId"));
                     }
 
-                    // 2. Fetch actual Game objects based on those IDs
                     db.collection("games").whereIn("gameId", gameIds).get()
                             .addOnSuccessListener(gameSnapshots -> {
 
@@ -95,7 +93,6 @@ public class LibraryFragment extends Fragment {
 
                                 List<Game> ownedGames = gameSnapshots.toObjects(Game.class);
 
-                                // Use the new LibraryAdapter instead of ListingAdapter!
                                 LibraryAdapter adapter = new LibraryAdapter(ownedGames, game -> {
                                     showKeysDialog(game);
                                 });
@@ -108,7 +105,6 @@ public class LibraryFragment extends Fragment {
         if (getContext() == null || auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
 
-        // 1. Setup the Dialog
         Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_activation_keys);
@@ -123,7 +119,6 @@ public class LibraryFragment extends Fragment {
         keysRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         closeBtn.setOnClickListener(v -> dialog.dismiss());
 
-        // 2. Scan Orders for this specific game to generate keys based on quantity
         db.collection("orders")
                 .whereEqualTo("userId", uid)
                 .whereEqualTo("status", "PAID")
@@ -142,7 +137,6 @@ public class LibraryFragment extends Fragment {
                             for (Order.OrderItem item : order.getOrderItems()) {
                                 if (item.getGameId().equals(game.getGameId())) {
 
-                                    // Extract Platform
                                     String platform = "Digital";
                                     if (item.getAttributes() != null) {
                                         for (Order.OrderItem.Attribute attr : item.getAttributes()) {
@@ -155,7 +149,6 @@ public class LibraryFragment extends Fragment {
 
                                     String formattedDate = sdf.format(new Date(order.getOrderDate()));
 
-                                    // If they bought qty 2 in one order, we generate 2 keys!
                                     for (int i = 0; i < item.getQty(); i++) {
                                         String fakeKey = UUID.randomUUID().toString().substring(0, 14).toUpperCase().replace("-", "");
                                         fakeKey = fakeKey.substring(0,4) + "-" + fakeKey.substring(4,8) + "-" + fakeKey.substring(8,12);

@@ -65,9 +65,12 @@ public class CartFragment extends Fragment {
                         @Override
                         public void onSuccess(QuerySnapshot qds) {
 
+<<<<<<< HEAD
                             // 🛑 THE SHIELD
                             if (!isAdded() || binding == null) return;
 
+=======
+>>>>>>> d0e449b8f2fe214ea1effb6812f4624bd8ff5d73
                             if (qds.isEmpty()) {
                                 cartItems = new ArrayList<>();
                                 updateEmptyState();
@@ -149,7 +152,6 @@ public class CartFragment extends Fragment {
         });
     }
 
-    // Drop this helper method anywhere inside your CartFragment class
     private void updateEmptyState() {
         if (cartItems == null || cartItems.isEmpty()) {
             binding.cartRecyclerView.setVisibility(View.GONE);
