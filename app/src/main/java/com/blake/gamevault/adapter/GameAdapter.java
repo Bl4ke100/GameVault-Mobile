@@ -13,8 +13,10 @@ import com.blake.gamevault.R;
 import com.blake.gamevault.model.Game;
 import com.blake.gamevault.util.CardFlipAnimator;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
+import java.util.Locale;
 
 public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
 
@@ -22,7 +24,6 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
     private OnGameClickListener listener;
 
     public GameAdapter(List<Game> games, OnGameClickListener listener) {
-
         this.games = games;
         this.listener = listener;
     }
@@ -40,7 +41,9 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull GameAdapter.ViewHolder holder, int position) {
         Game game = games.get(position);
         holder.gameTitle.setText(game.getTitle());
-        holder.gamePrice.setText("LKR " + game.getPrice() + "0");
+
+        // Fixed the currency formatting to be bulletproof!
+        holder.gamePrice.setText(String.format(Locale.US, "LKR %,.2f", game.getPrice()));
 
         // 1. Clear old image so recycled views don't show the wrong game
         Glide.with(holder.itemView).clear(holder.gameImage);
@@ -54,10 +57,12 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
 
         // 3. CACHING TRICK: Did we already fetch this URL?
         if (posterName.startsWith("http")) {
-            // Yes! Load instantly from Glide's memory cache
+            // Yes! Load instantly from Glide's disk/memory cache
             Glide.with(holder.itemView)
                     .load(posterName)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                     .placeholder(R.drawable.placeholder_game)
+                    .error(R.drawable.placeholder_game)
                     .centerCrop()
                     .into(holder.gameImage);
         } else {
@@ -75,7 +80,9 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.ViewHolder> {
                         // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                                 .placeholder(R.drawable.placeholder_game)
+                                .error(R.drawable.placeholder_game)
                                 .centerCrop()
                                 .into(holder.gameImage);
                     })

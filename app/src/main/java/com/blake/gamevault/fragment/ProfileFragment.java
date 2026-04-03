@@ -40,14 +40,16 @@ public class ProfileFragment extends Fragment {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri uri = result.getData().getData();
 
-                    // 1. Show the image instantly using Glide
-                    if (getContext() != null && binding != null) {
-                        Glide.with(getContext())
-                                .load(uri)
-                                .placeholder(R.drawable.person)
-                                .circleCrop()
-                                .into(binding.profileImage);
-                    }
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
+                    // 1. Show the image instantly using Glide + CACHE
+                    Glide.with(this) // Use 'this' for fragment lifecycle safety
+                            .load(uri)
+                            .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.person)
+                            .circleCrop()
+                            .into(binding.profileImage);
 
                     // 2. Upload to Firebase Storage
                     String imageId = UUID.randomUUID().toString();
@@ -58,18 +60,18 @@ public class ProfileFragment extends Fragment {
 
                     imageReference.putFile(uri)
                             .addOnSuccessListener(taskSnapshot -> {
-                                // 3. Update the Firestore user document with the new imageId
+                                // 3. Update the Firestore user document
                                 db.collection("users")
                                         .document(auth.getUid())
-                                        .update("profilePicUrl", imageId) // Using the exact field name from MainActivity
+                                        .update("profilePicUrl", imageId)
                                         .addOnSuccessListener(aVoid -> {
-                                            if (getContext() != null) {
-                                                Toast.makeText(getContext(), "Profile Picture Updated", Toast.LENGTH_SHORT).show();
-                                            }
+                                            // 🛑 THE SHIELD
+                                            if (!isAdded() || getContext() == null) return;
+                                            Toast.makeText(getContext(), "Profile Picture Updated", Toast.LENGTH_SHORT).show();
                                         });
                             })
                             .addOnFailureListener(e -> {
-                                if (getContext() != null) {
+                                if (isAdded() && getContext() != null) {
                                     Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -110,36 +112,37 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile(FirebaseUser currentUser) {
-        // Fallback to Auth data first
         binding.profileEmail.setText(currentUser.getEmail());
         if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
             binding.profileName.setText(currentUser.getDisplayName());
         }
 
-        // Fetch custom data from Firestore users collection
         db.collection("users").document(currentUser.getUid())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && binding != null) {
-                        // Look for username or name
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
+                    if (documentSnapshot.exists()) {
                         String name = documentSnapshot.getString("username");
                         if (name == null) name = documentSnapshot.getString("name");
                         if (name != null) binding.profileName.setText(name);
 
-                        // Load the image using the UUID from Firestore + Firebase Storage
                         String profilePicUrl = documentSnapshot.getString("profilePicUrl");
 
-                        if (profilePicUrl != null && !profilePicUrl.isEmpty() && getContext() != null) {
+                        if (profilePicUrl != null && !profilePicUrl.isEmpty()) {
                             FirebaseStorage.getInstance().getReference("/images/profile-images/" + profilePicUrl)
                                     .getDownloadUrl()
                                     .addOnSuccessListener(uri -> {
-                                        if (getContext() != null && binding != null) {
-                                            Glide.with(getContext())
-                                                    .load(uri)
-                                                    .placeholder(R.drawable.person)
-                                                    .circleCrop()
-                                                    .into(binding.profileImage);
-                                        }
+                                        // 🛑 THE SHIELD
+                                        if (!isAdded() || binding == null) return;
+
+                                        Glide.with(this) // Use 'this' for safety
+                                                .load(uri)
+                                                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL) // CACHE
+                                                .placeholder(R.drawable.person)
+                                                .circleCrop()
+                                                .into(binding.profileImage);
                                     });
                         }
                     }
@@ -150,19 +153,22 @@ public class ProfileFragment extends Fragment {
         // Count Orders
         db.collection("orders").whereEqualTo("userId", uid).get()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (binding != null) binding.statOrders.setText(String.valueOf(querySnapshot.size()));
+                    if (!isAdded() || binding == null) return; // 🛑 SHIELD
+                    binding.statOrders.setText(String.valueOf(querySnapshot.size()));
                 });
 
         // Count Games Owned (Library)
         db.collection("users").document(uid).collection("library").get()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (binding != null) binding.statGamesOwned.setText(String.valueOf(querySnapshot.size()));
+                    if (!isAdded() || binding == null) return; // 🛑 SHIELD
+                    binding.statGamesOwned.setText(String.valueOf(querySnapshot.size()));
                 });
 
         // Count Wishlist (Favorites)
         db.collection("users").document(uid).collection("favorites").get()
                 .addOnSuccessListener(querySnapshot -> {
-                    if (binding != null) binding.statWishlist.setText(String.valueOf(querySnapshot.size()));
+                    if (!isAdded() || binding == null) return; // 🛑 SHIELD
+                    binding.statWishlist.setText(String.valueOf(querySnapshot.size()));
                 });
     }
 

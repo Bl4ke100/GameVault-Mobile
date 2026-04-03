@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.blake.gamevault.R;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerViewHolder> {
@@ -33,9 +34,10 @@ public class BannerAdapter extends RecyclerView.Adapter<BannerAdapter.BannerView
 
         Glide.with(holder.itemView)
                 .load(imageUrl)
-                .placeholder(R.drawable.placeholder_game) // Shows while loading
-                .error(R.drawable.placeholder_game)       // Shows if the link is broken
-                .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300)) // Smooth fade-in
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // Caches the banner instantly
+                .placeholder(R.drawable.placeholder_game)
+                .error(R.drawable.placeholder_game)
+                .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade(300))
                 .centerCrop()
                 .into(holder.imageView);
     }

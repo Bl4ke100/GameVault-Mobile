@@ -78,10 +78,10 @@ public class GameDetailFragment extends Fragment {
 
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
 
         binding.btnBack.setOnClickListener(v -> {
             requireActivity().getOnBackPressedDispatcher().onBackPressed();
@@ -94,9 +94,6 @@ public class GameDetailFragment extends Fragment {
             }
         });
 
-
-        //load game details
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("games")
                 .whereEqualTo("gameId", gameId)
@@ -104,12 +101,20 @@ public class GameDetailFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot qds) {
+
+                        // 🛑 THE SHIELD
+                        if (!isAdded() || binding == null) return;
+
                         if (!qds.isEmpty()) {
                             Game game = qds.getDocuments().get(0).toObject(Game.class);
 
-                            GameSliderAdapter adapter = new GameSliderAdapter(game.getImages(), game.getGameId());                            binding.gameImageSlider.setAdapter(adapter);
+                            GameSliderAdapter adapter = new GameSliderAdapter(game.getImages(), game.getGameId());
+                            binding.gameImageSlider.setAdapter(adapter);
                             binding.gameName.setText(game.getTitle());
-                            binding.gamePrice.setText(String.valueOf("LKR " + game.getPrice() + "0"));
+
+                            // Fixed format
+                            binding.gamePrice.setText(String.format(java.util.Locale.US, "LKR %,.2f", game.getPrice()));
+
                             binding.detailReleaseYear.setText(String.valueOf(game.getReleasedYear()));
                             binding.detailDescription.setText(game.getDescription());
                             binding.detailStockCount.setText(game.getStock() + " Keys Available");
@@ -122,19 +127,17 @@ public class GameDetailFragment extends Fragment {
                                 game.getAttributes().forEach(attribute -> {
                                     renderAttribute(attribute, (ViewGroup) binding.detailPlatformContainer);
                                 });
-
                             }
-
 
                             FirebaseFirestore.getInstance().collection("developers")
                                     .whereEqualTo("developerId", game.getDeveloperId())
                                     .get()
                                     .addOnSuccessListener(querySnapshot -> {
-                                        Log.d("TAG", "developerId from game: " + game.getDeveloperId());
-                                        Log.d("TAG", "query result size: " + querySnapshot.size());
+                                        // 🛑 THE SHIELD
+                                        if (!isAdded() || binding == null) return;
+
                                         if (!querySnapshot.isEmpty()) {
                                             String developerName = querySnapshot.getDocuments().get(0).getString("name");
-                                            Log.d("TAG", "developer name: " + developerName);
                                             binding.detailDeveloper.setText(developerName);
                                         }
                                     })
@@ -144,14 +147,15 @@ public class GameDetailFragment extends Fragment {
                                     .whereEqualTo("catId", game.getCategoryId())
                                     .get()
                                     .addOnSuccessListener(querySnapshot -> {
+                                        // 🛑 THE SHIELD
+                                        if (!isAdded() || binding == null) return;
+
                                         if (!querySnapshot.isEmpty()) {
                                             String categoryName = querySnapshot.getDocuments().get(0).getString("name");
                                             binding.detailGenre.setText(categoryName);
                                         }
                                     });
-
                         }
-
                     }
                 });
 
@@ -160,7 +164,6 @@ public class GameDetailFragment extends Fragment {
                 qty--;
                 binding.detailQuantity.setText(String.valueOf(qty));
             }
-
         });
 
         binding.btnIncrease.setOnClickListener(v -> {
@@ -173,10 +176,7 @@ public class GameDetailFragment extends Fragment {
         loadSimilarProducts();
 
         binding.btnAddToCart.setOnClickListener(v -> {
-
-            if (!validateSelections()) {
-                return;
-            }
+            if (!validateSelections()) return;
 
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
 
@@ -191,18 +191,21 @@ public class GameDetailFragment extends Fragment {
                 CollectionReference cartRef = db.collection("users").document(uid).collection("cart");
 
                 cartRef.whereEqualTo("gameId", gameId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
                     boolean matchFound = false;
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         CartItem existingItem = doc.toObject(CartItem.class);
 
                         if (existingItem != null && existingItem.getAttributes().equals(attributes)) {
-
-                            // 3. Exact match found! Add to the existing quantity.
                             int newQty = existingItem.getQty() + qty;
                             doc.getReference().update("qty", newQty)
                                     .addOnSuccessListener(unused -> {
-                                        Toast.makeText(getContext(), "Cart Quantity Updated!", Toast.LENGTH_SHORT).show();
+                                        if(getContext() != null){
+                                            Toast.makeText(getContext(), "Cart Quantity Updated!", Toast.LENGTH_SHORT).show();
+                                        }
                                     });
                             matchFound = true;
                             break;
@@ -212,32 +215,32 @@ public class GameDetailFragment extends Fragment {
                     if (!matchFound) {
                         cartRef.document().set(cartItem)
                                 .addOnSuccessListener(unused -> {
-                                    Toast.makeText(getContext(), "Game Added To Cart!", Toast.LENGTH_SHORT).show();
-                                    Log.i("Added to cart", cartItem.toString());
+                                    if(getContext() != null) {
+                                        Toast.makeText(getContext(), "Game Added To Cart!", Toast.LENGTH_SHORT).show();
+                                    }
                                 });
                     }
                 });
             }
         });
 
-
         checkFavoriteStatus(db);
 
-        // 2. Attach the click listener to the wishlist button
         binding.btnWishlist.setOnClickListener(v -> {
             toggleFavorite(db);
         });
-
-        // ... (The rest of your existing code fetching the game details)
     }
 
     private void loadSimilarProducts() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("games")
-                .whereEqualTo("categoryId", catId) // Assuming catId is available
+                .whereEqualTo("categoryId", catId)
                 .get()
                 .addOnSuccessListener(qds -> {
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
                     if (qds != null && !qds.isEmpty()) {
                         List<Game> games = new ArrayList<>();
 
@@ -372,12 +375,10 @@ public class GameDetailFragment extends Fragment {
     }
 
     private void checkFavoriteStatus(FirebaseFirestore db) {
-        // 1. Check Local SQLite (Room) first for instant UI response
         AppDatabase localDb = AppDatabase.getInstance(requireContext());
         isFavorite = localDb.favoriteDao().isFavorite(gameId);
         updateWishlistIcon();
 
-        // 2. Sync with Firebase in the background
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) return;
 
@@ -385,16 +386,15 @@ public class GameDetailFragment extends Fragment {
         db.collection("users").document(uid).collection("favorites").document(gameId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
                     boolean firebaseFavorite = documentSnapshot.exists();
 
-                    // If Local and Firebase are out of sync, update Local
                     if (firebaseFavorite != isFavorite) {
                         isFavorite = firebaseFavorite;
                         updateWishlistIcon();
-                        // Update SQLite to match Firebase
-                        if (isFavorite) {
-                            // You'd need to fetch the game object to save full details
-                        } else {
+                        if (!isFavorite) {
                             localDb.favoriteDao().removeFavoriteById(gameId);
                         }
                     }
@@ -477,5 +477,11 @@ public class GameDetailFragment extends Fragment {
             if (bottomNav != null) bottomNav.setVisibility(View.VISIBLE);
             if (toolBar != null) toolBar.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

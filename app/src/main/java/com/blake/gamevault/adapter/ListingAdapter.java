@@ -46,20 +46,16 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         holder.gameTitle.setText(game.getTitle());
         holder.gamePrice.setText("LKR " + game.getPrice() + "0");
 
-        // Reset state before loading
         Glide.with(holder.itemView.getContext()).clear(holder.gameImage);
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
-        holder.resetPosition(); // Reset translation for the recycled view
+        holder.resetPosition();
 
-        // 1. Get the current poster string
         String posterName = game.getPosterUrl();
         if (posterName == null || posterName.isEmpty()) {
             posterName = "poster.png";
         }
 
-        // 2. CACHING TRICK: Has it already been converted to a real web link?
         if (posterName.startsWith("http")) {
-            // Awesome! We already fetched this URL. Load it instantly from Glide's memory.
             Glide.with(holder.itemView.getContext())
                     .load(posterName)
                     .centerCrop()
@@ -69,7 +65,6 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             holder.gameImage.setScaleY(1.03f);
 
         } else {
-            // It's still just "poster.png". We need to fetch the real URL from Firebase.
             String storagePath = "images/game-images/" + game.getGameId() + "/" + posterName;
 
             com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
@@ -77,7 +72,6 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
                     .addOnSuccessListener(uri -> {
                         String realUrl = uri.toString();
 
-                        // SAVE IT BACK TO THE OBJECT! Next time you scroll, it skips the network call.
                         game.setPosterUrl(realUrl);
 
                         Glide.with(holder.itemView.getContext())
@@ -124,9 +118,8 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
         private SensorManager sensorManager;
         private Sensor gravitySensor;
 
-        // Parallax settings - Tweak these for "tiny" movement
-        private float intensity = 1f;     // Max movement in pixels
-        private float smoothing = 0.1f;   // Lower is smoother (0.0 to 1.0)
+        private float intensity = 1f;
+        private float smoothing = 0.1f;
         private float curX = 0, curY = 0;
 
         public ViewHolder(@NonNull View itemView) {
@@ -161,7 +154,6 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
             float targetX = event.values[0] * intensity;
             float targetY = event.values[1] * intensity;
 
-            // Smoothed interpolation (LERP)
             curX += (targetX - curX) * smoothing;
             curY += (targetY - curY) * smoothing;
 

@@ -23,7 +23,6 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.blake.gamevault.R;
 import com.blake.gamevault.adapter.BannerAdapter;
 import com.blake.gamevault.adapter.CategoryAdapter;
-import com.blake.gamevault.adapter.GameSliderAdapter;
 import com.blake.gamevault.databinding.FragmentHomeBinding;
 import com.blake.gamevault.model.Category;
 import com.blake.gamevault.model.Game;
@@ -45,6 +44,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private float currentAcceleration = 0f;
     private float lastAcceleration = 0f;
     private List<Game> allGamesList = new ArrayList<>();
+
+    // Slider Handler Variables (Moved here to safely kill them later)
+    private android.os.Handler sliderHandler = new android.os.Handler();
+    private Runnable sliderRunnable;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -69,11 +72,15 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         // 1. Fetch Top Banners
         storage.getReference().child("images/banners").listAll().addOnSuccessListener(listResult -> {
+            if (!isAdded() || binding == null) return; // THE SHIELD
+
             List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
             if (total == 0) return;
             for (com.google.firebase.storage.StorageReference item : listResult.getItems()) {
                 item.getDownloadUrl().addOnSuccessListener(uri -> {
+                    if (!isAdded() || binding == null) return; // THE SHIELD
+
                     urls.add(uri.toString());
                     if (urls.size() == total) {
                         setupSlider(binding.homeBannerSlider, binding.homeBannerDots, urls);
@@ -84,11 +91,15 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         // 2. Fetch New Arrivals Banners
         storage.getReference().child("images/new-arrivals").listAll().addOnSuccessListener(listResult -> {
+            if (!isAdded() || binding == null) return; // THE SHIELD
+
             List<String> urls = new ArrayList<>();
             int total = listResult.getItems().size();
             if (total == 0) return;
             for (com.google.firebase.storage.StorageReference item : listResult.getItems()) {
                 item.getDownloadUrl().addOnSuccessListener(uri -> {
+                    if (!isAdded() || binding == null) return; // THE SHIELD
+
                     urls.add(uri.toString());
                     if (urls.size() == total) {
                         setupSlider(binding.newArrivalsBannerSlider, binding.newArrivalsBannerDots, urls);
@@ -114,14 +125,14 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         float delta = currentAcceleration - lastAcceleration;
         acceleration = acceleration * 0.9f + delta;
 
-        if (acceleration > 10) { // Sensitivity threshold
+        if (acceleration > 10) {
             pickRandomGame();
             acceleration = 0;
         }
     }
 
     private void pickRandomGame() {
-        if (allGamesList != null && !allGamesList.isEmpty()) {
+        if (allGamesList != null && !allGamesList.isEmpty() && isAdded() && getContext() != null) {
             int randomIndex = new java.util.Random().nextInt(allGamesList.size());
             Game randomGame = allGamesList.get(randomIndex);
 
@@ -129,7 +140,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     .setTitle("🎲 Feeling Lucky?")
                     .setMessage("You should try: " + randomGame.getTitle())
                     .setPositiveButton("View Details", (dialog, which) -> {
-                        // Pass both IDs here
                         navigateToDetail(randomGame.getGameId(), randomGame.getCategoryId());
                     })
                     .setNegativeButton("Shake Again", null)
@@ -141,7 +151,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         GameDetailFragment detailFragment = new GameDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
-        bundle.putString("catId", catId); // Added the category ID here!
+        bundle.putString("catId", catId);
         detailFragment.setArguments(bundle);
 
         getParentFragmentManager().beginTransaction()
@@ -158,10 +168,12 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         db.collection("games")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    if (!isAdded() || binding == null) return; // THE SHIELD
+
                     if (querySnapshot.isEmpty()) return;
 
                     List<Game> games = querySnapshot.toObjects(Game.class);
-                    this.allGamesList = games; // Store all games for the shake feature
+                    this.allGamesList = games;
 
                     List<Game> featured = new ArrayList<>(games);
                     java.util.Collections.shuffle(featured);
@@ -188,6 +200,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 .limit(10)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    if (!isAdded() || binding == null) return; // THE SHIELD
+
                     if (querySnapshot.isEmpty()) return;
                     List<Game> games = querySnapshot.toObjects(Game.class);
                     binding.homeNewArrivalsRow.removeAllViews();
@@ -209,6 +223,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         db.collection("categories")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    if (!isAdded() || binding == null || getContext() == null) return; // THE SHIELD
+
                     if (querySnapshot.isEmpty()) return;
                     List<Category> categories = querySnapshot.toObjects(Category.class);
                     CategoryAdapter adapter = new CategoryAdapter(categories, category -> {
@@ -230,6 +246,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
     // ===== HELPER: Add Game Card =====
     private void addGameCard(LinearLayout row, Game game) {
+        if (!isAdded() || getContext() == null) return; // Extra safety
+
         View cardView = LayoutInflater.from(getContext())
                 .inflate(R.layout.item_home_game, row, false);
 
@@ -240,7 +258,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         title.setText(game.getTitle());
         price.setText("LKR " + game.getPrice() + "0");
 
-        // --- NEW IMAGE LOAD METHOD ---
         String posterName = game.getPosterUrl();
         if (posterName == null || posterName.isEmpty()) {
             posterName = "poster.png";
@@ -252,18 +269,18 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 .child(game.getGameId())
                 .child(posterName);
 
-        // Set placeholder immediately
         image.setImageResource(R.drawable.placeholder_game);
 
-        // Fetch URL and load with Glide
         storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            if (getContext() != null) { // Prevents crash if fragment closes before image loads
-                Glide.with(requireContext())
-                        .load(uri)
-                        .placeholder(R.drawable.placeholder_game)
-                        .error(R.drawable.placeholder_game)
-                        .into(image);
-            }
+            // THE SHIELD (Plus swapped requireContext() for getContext() safety)
+            if (!isAdded() || getContext() == null || binding == null) return;
+
+            Glide.with(getContext())
+                    .load(uri)
+                    .placeholder(R.drawable.placeholder_game)
+                    .error(R.drawable.placeholder_game)
+                    .into(image);
+
         }).addOnFailureListener(e -> {
             android.util.Log.e("HomeFragment", "Error loading image for " + game.getGameId() + ": " + e.getMessage());
         });
@@ -279,28 +296,29 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         slider.setAdapter(adapter);
         dots.attachTo(slider);
 
-        android.os.Handler handler = new android.os.Handler();
-        Runnable runnable = new Runnable() {
+        sliderRunnable = new Runnable() {
             @Override
             public void run() {
+                if (!isAdded() || binding == null) return; // THE SHIELD inside the runner
+
                 int currentItem = slider.getCurrentItem();
                 if (urls.size() > 0) {
                     int nextItem = (currentItem + 1) % urls.size();
                     slider.setCurrentItem(nextItem, true);
                 }
-                handler.postDelayed(this, 3500);
+                sliderHandler.postDelayed(this, 3500);
             }
         };
-        handler.postDelayed(runnable, 3500);
+        sliderHandler.postDelayed(sliderRunnable, 3500);
 
         slider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
-                    handler.removeCallbacks(runnable);
+                    sliderHandler.removeCallbacks(sliderRunnable);
                 } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                    handler.removeCallbacks(runnable);
-                    handler.postDelayed(runnable, 3500);
+                    sliderHandler.removeCallbacks(sliderRunnable);
+                    sliderHandler.postDelayed(sliderRunnable, 3500);
                 }
             }
         });
@@ -328,6 +346,12 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
+        // KILL THE HANDLER LOOP SO IT DOESN'T CRASH THE APP
+        if (sliderHandler != null && sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
+        }
+
         binding = null;
     }
 }

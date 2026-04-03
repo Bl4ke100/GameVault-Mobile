@@ -237,6 +237,9 @@ public class GamesFragment extends Fragment {
 
         //Repeated games cleaner
         db.collection("games").get().addOnSuccessListener(queryDocumentSnapshots -> {
+
+            if (!isAdded() || binding == null) return;
+
             WriteBatch batch = db.batch();
             Set<String> seenTitles = new HashSet<>();
             int deleteCount = 0;
@@ -269,8 +272,6 @@ public class GamesFragment extends Fragment {
                 Log.i("Games Fragment", "No duplicates found!");
             }
         });
-
-
 
 
         if (catId != null) {
@@ -375,8 +376,13 @@ public class GamesFragment extends Fragment {
 
         // 4. Setup Local Search Filter
         binding.gamesLocalSearch.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(android.text.Editable s) {
@@ -406,6 +412,7 @@ public class GamesFragment extends Fragment {
                 : db.collection("games").orderBy("title", Query.Direction.ASCENDING);
 
         query.get().addOnSuccessListener(ds -> {
+            if (!isAdded() || binding == null) return;
             if (!ds.isEmpty()) {
                 fullGameList = ds.toObjects(Game.class);
                 displayedGameList.clear();
@@ -427,8 +434,10 @@ public class GamesFragment extends Fragment {
                 binding.recyclerGameView.setAdapter(adapter);
             }
         }).addOnFailureListener(e -> {
-            Log.e("Firestore", "Error" + e.getMessage());
-            Toast.makeText(getContext(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+            if (isAdded() && getContext() != null) {
+                Log.e("Firestore", "Error" + e.getMessage());
+                Toast.makeText(getContext(), "Check your internet connection", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // 6. Restore Toolbar when leaving
@@ -445,6 +454,8 @@ public class GamesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        requireActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
-    }
+        if (getActivity() != null) {
+            getActivity().findViewById(R.id.toolBar).setVisibility(View.VISIBLE);
+        }
+        binding = null;}
 }

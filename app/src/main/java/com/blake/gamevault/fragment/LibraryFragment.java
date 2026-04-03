@@ -68,6 +68,10 @@ public class LibraryFragment extends Fragment {
         db.collection("users").document(uid).collection("library")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
                     if (querySnapshot.isEmpty()) {
                         binding.libraryRecycler.setVisibility(View.GONE);
                         binding.libraryEmptyState.setVisibility(View.VISIBLE);
@@ -85,11 +89,15 @@ public class LibraryFragment extends Fragment {
                     // 2. Fetch actual Game objects based on those IDs
                     db.collection("games").whereIn("gameId", gameIds).get()
                             .addOnSuccessListener(gameSnapshots -> {
+
+                                // 🛑 THE SHIELD
+                                if (!isAdded() || binding == null) return;
+
                                 List<Game> ownedGames = gameSnapshots.toObjects(Game.class);
 
                                 // Use the new LibraryAdapter instead of ListingAdapter!
                                 LibraryAdapter adapter = new LibraryAdapter(ownedGames, game -> {
-                                    showKeysDialog(game); // Opens the dialog when button is clicked
+                                    showKeysDialog(game);
                                 });
                                 binding.libraryRecycler.setAdapter(adapter);
                             });
@@ -103,7 +111,7 @@ public class LibraryFragment extends Fragment {
         // 1. Setup the Dialog
         Dialog dialog = new Dialog(getContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_activation_keys); // Your 2nd XML
+        dialog.setContentView(R.layout.dialog_activation_keys);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
@@ -121,6 +129,10 @@ public class LibraryFragment extends Fragment {
                 .whereEqualTo("status", "PAID")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+
+                    // 🛑 THE SHIELD (Critical here since Dialogs can leak memory easily)
+                    if (!isAdded() || getContext() == null) return;
+
                     List<KeyAdapter.KeyData> keyDataList = new ArrayList<>();
                     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
                     int copyCounter = 1;
@@ -145,7 +157,6 @@ public class LibraryFragment extends Fragment {
 
                                     // If they bought qty 2 in one order, we generate 2 keys!
                                     for (int i = 0; i < item.getQty(); i++) {
-                                        // Generating a random key format (e.g. A1B2-C3D4-E5F6) for UI purposes
                                         String fakeKey = UUID.randomUUID().toString().substring(0, 14).toUpperCase().replace("-", "");
                                         fakeKey = fakeKey.substring(0,4) + "-" + fakeKey.substring(4,8) + "-" + fakeKey.substring(8,12);
 
@@ -160,7 +171,11 @@ public class LibraryFragment extends Fragment {
                     KeyAdapter adapter = new KeyAdapter(keyDataList);
                     keysRecycler.setAdapter(adapter);
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to load keys.", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    if (isAdded() && getContext() != null) {
+                        Toast.makeText(getContext(), "Failed to load keys.", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         dialog.show();
     }

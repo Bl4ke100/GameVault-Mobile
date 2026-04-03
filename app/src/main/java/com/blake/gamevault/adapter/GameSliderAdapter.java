@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.blake.gamevault.R;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
@@ -17,9 +18,8 @@ import java.util.List;
 public class GameSliderAdapter extends RecyclerView.Adapter<GameSliderAdapter.GameSliderViewHolder> {
 
     private List<String> images;
-    private String gameId; // We need this to find the folder in Storage
+    private String gameId;
 
-    // Update constructor to accept gameId
     public GameSliderAdapter(List<String> images, String gameId) {
         this.images = images;
         this.gameId = gameId;
@@ -37,11 +37,14 @@ public class GameSliderAdapter extends RecyclerView.Adapter<GameSliderAdapter.Ga
     public void onBindViewHolder(@NonNull GameSliderViewHolder holder, int position) {
         String fileName = images.get(position);
 
+        // 1. Clear the view to prevent ghosting when swiping fast
+        Glide.with(holder.itemView).clear(holder.imageView);
         holder.imageView.setImageResource(R.drawable.placeholder_game);
 
         if (fileName != null && fileName.startsWith("http")) {
             Glide.with(holder.itemView)
                     .load(fileName)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                     .placeholder(R.drawable.placeholder_game)
                     .error(R.drawable.close)
                     .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())
@@ -58,10 +61,12 @@ public class GameSliderAdapter extends RecyclerView.Adapter<GameSliderAdapter.Ga
                         try {
                             images.set(position, realUrl);
                         } catch (UnsupportedOperationException e) {
+                            // Ignore if list is immutable
                         }
 
                         Glide.with(holder.itemView)
                                 .load(realUrl)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                                 .placeholder(R.drawable.placeholder_game)
                                 .error(R.drawable.close)
                                 .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())

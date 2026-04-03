@@ -15,6 +15,7 @@ import com.blake.gamevault.R;
 import com.blake.gamevault.model.Category;
 import com.blake.gamevault.util.CardFlipAnimator;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.List;
@@ -26,7 +27,6 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     private FirebaseStorage storage;
 
     public CategoryAdapter(List<Category> categories, OnCategoryClickListener listener) {
-
         this.categories = categories;
         this.listener = listener;
         storage = FirebaseStorage.getInstance();
@@ -57,15 +57,15 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
         // 2. CACHING TRICK: Did we already fetch this URL?
         if (imagePath.startsWith("http")) {
-            // Yes! Load instantly from memory.
+            // Yes! Load instantly from memory/disk.
             Glide.with(holder.itemView)
                     .load(imagePath)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                     .placeholder(R.drawable.placeholder_game)
                     .centerCrop()
                     .into(holder.catImage);
         } else {
             // No. Fetch from Firebase Storage.
-            // Note: I removed the "/" you had before imagePath, getReference handles it better without it!
             storage.getReference(imagePath)
                     .getDownloadUrl()
                     .addOnSuccessListener(uri -> {
@@ -77,6 +77,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
                         // THE SHIELD: holder.itemView ties Glide to the View's lifecycle
                         Glide.with(holder.itemView)
                                 .load(realUrl)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE ADDED
                                 .placeholder(R.drawable.placeholder_game)
                                 .centerCrop()
                                 .into(holder.catImage);

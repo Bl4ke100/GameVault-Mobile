@@ -16,6 +16,7 @@ import com.blake.gamevault.R;
 import com.blake.gamevault.model.Game;
 import com.blake.gamevault.model.Order;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -80,6 +81,9 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             db.collection("games").whereIn("gameId", gameIds).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
 
+                        // Stop if the user scrolled the item off-screen before Firestore finished
+                        if (holder.itemView.getParent() == null) return;
+
                         // Map games for easy lookup
                         Map<String, Game> gameMap = new HashMap<>();
                         for (Game game : queryDocumentSnapshots.toObjects(Game.class)) {
@@ -117,20 +121,44 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                             if (game != null) {
                                 title.setText(game.getTitle());
 
-                                // --- NEW IMAGE LOADING LOGIC ---
-                                String storagePath = "images/game-images/" + game.getGameId() + "/poster.png";
+                                // --- NEW IMAGE LOADING LOGIC WITH CACHING ---
+                                Glide.with(holder.itemView).clear(img);
+                                img.setImageResource(R.drawable.placeholder_game);
 
-                                com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
-                                        .getDownloadUrl()
-                                        .addOnSuccessListener(uri -> {
-                                            Glide.with(context)
-                                                    .load(uri)
-                                                    .centerCrop()
-                                                    .into(img);
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            android.util.Log.e("OrderAdapter", "Failed to load poster for: " + game.getTitle());
-                                        });
+                                String posterName = game.getPosterUrl();
+                                if (posterName == null || posterName.isEmpty()) {
+                                    posterName = "poster.png";
+                                }
+
+                                if (posterName.startsWith("http")) {
+                                    Glide.with(holder.itemView)
+                                            .load(posterName)
+                                            .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE
+                                            .placeholder(R.drawable.placeholder_game)
+                                            .error(R.drawable.placeholder_game)
+                                            .centerCrop()
+                                            .into(img);
+                                } else {
+                                    String storagePath = "images/game-images/" + game.getGameId() + "/" + posterName;
+
+                                    com.google.firebase.storage.FirebaseStorage.getInstance().getReference(storagePath)
+                                            .getDownloadUrl()
+                                            .addOnSuccessListener(uri -> {
+                                                String realUrl = uri.toString();
+                                                game.setPosterUrl(realUrl);
+
+                                                Glide.with(holder.itemView) // THE SHIELD
+                                                        .load(realUrl)
+                                                        .diskCacheStrategy(DiskCacheStrategy.ALL) // DISK CACHE
+                                                        .placeholder(R.drawable.placeholder_game)
+                                                        .error(R.drawable.placeholder_game)
+                                                        .centerCrop()
+                                                        .into(img);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                android.util.Log.e("OrderAdapter", "Failed to load poster for: " + game.getTitle());
+                                            });
+                                }
                                 // -------------------------------
                             }
 

@@ -12,19 +12,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -34,7 +29,6 @@ import com.blake.gamevault.databinding.SideNavHeaderBinding;
 import com.blake.gamevault.fragment.CartFragment;
 import com.blake.gamevault.fragment.HomeFragment;
 import com.blake.gamevault.fragment.LibraryFragment;
-import com.blake.gamevault.fragment.MessageFragment;
 import com.blake.gamevault.fragment.OrdersFragment;
 import com.blake.gamevault.fragment.ProfileFragment;
 import com.blake.gamevault.fragment.SettingsFragment;
@@ -118,7 +112,6 @@ public class MainActivity extends AppCompatActivity
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        //Load user data
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
             String uid = currentUser.getUid();
@@ -443,16 +436,12 @@ public class MainActivity extends AppCompatActivity
                         return;
                     }
 
-                    // Get the unique device token
                     String token = task.getResult();
                     String uid = auth.getCurrentUser().getUid();
 
-                    // Package it up
                     java.util.Map<String, Object> tokenData = new java.util.HashMap<>();
                     tokenData.put("fcmToken", token);
 
-                    // Save it to their user document in Firestore
-                    // NOTE: We use merge() so it doesn't accidentally delete their name/email!
                     com.google.firebase.firestore.FirebaseFirestore.getInstance()
                             .collection("users").document(uid)
                             .set(tokenData, com.google.firebase.firestore.SetOptions.merge())

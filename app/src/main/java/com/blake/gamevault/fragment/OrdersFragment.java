@@ -56,6 +56,10 @@ public class OrdersFragment extends Fragment {
                 .orderBy("orderDate", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+
+                    // 🛑 THE SHIELD
+                    if (!isAdded() || binding == null) return;
+
                     if (querySnapshot.isEmpty()) {
                         binding.purchaseHistoryRecycler.setVisibility(View.GONE);
                         binding.emptyState.setVisibility(View.VISIBLE);
@@ -68,8 +72,10 @@ public class OrdersFragment extends Fragment {
                     List<Order> orders = querySnapshot.toObjects(Order.class);
 
                     OrderAdapter adapter = new OrderAdapter(orders, order -> {
-                        // Handle View Details click
-                        Toast.makeText(getContext(), "Clicked Order: " + order.getOrderId(), Toast.LENGTH_SHORT).show();
+                        // Handle View Details click (Added a quick shield here too just in case)
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Clicked Order: " + order.getOrderId(), Toast.LENGTH_SHORT).show();
+                        }
 
                         // You can navigate to an OrderDetailFragment here later
                     });
@@ -77,7 +83,10 @@ public class OrdersFragment extends Fragment {
                     binding.purchaseHistoryRecycler.setAdapter(adapter);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to load history", Toast.LENGTH_SHORT).show();
+                    // 🛑 THE SHIELD
+                    if (isAdded() && getContext() != null) {
+                        Toast.makeText(getContext(), "Failed to load history", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
