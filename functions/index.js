@@ -72,8 +72,11 @@ exports.sendBroadcastNotification = onDocumentCreated(
         return;
       }
 
+      // Deduplicate tokens if multiple users logged in on the same physical device
+      const uniqueTokens = [...new Set(tokens)];
+
       let successCount = 0;
-      for (const t of tokens) {
+      for (const t of uniqueTokens) {
         const message = {
           notification: {
             title: data.title || "GameVault Admin",
