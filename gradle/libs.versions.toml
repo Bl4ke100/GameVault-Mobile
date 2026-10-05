@@ -38,7 +38,10 @@ picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+firebase-ui-storage = { module = "com.firebaseui:firebase-ui-storage", version = "8.0.2" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+
 

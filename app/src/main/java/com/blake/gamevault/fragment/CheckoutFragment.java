@@ -1,21 +1,17 @@
 package com.blake.gamevault.fragment;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import com.blake.gamevault.R;
 import com.blake.gamevault.databinding.FragmentCheckoutBinding;
 import com.blake.gamevault.listener.FireStoreCallback;
@@ -29,94 +25,70 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import lk.payhere.androidsdk.PHConstants;
 import lk.payhere.androidsdk.PHMainActivity;
 import lk.payhere.androidsdk.PHResponse;
 import lk.payhere.androidsdk.model.InitRequest;
 import lk.payhere.androidsdk.model.StatusResponse;
-
 public class CheckoutFragment extends Fragment {
-
     private FragmentCheckoutBinding binding;
-
     private FirebaseFirestore db;
     private FirebaseAuth firebaseAuth;
     private double subTotal;
     private boolean paymentActive = false;
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         binding = FragmentCheckoutBinding.inflate(inflater, container, false);
-
         return binding.getRoot();
     }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         loadUserData();
-
         getCartItems(cartItems -> {
-            // 🛑 THE SHIELD
             if (!isAdded() || binding == null) return;
-
             ArrayList<String> gameIds = new ArrayList<>();
             for (CartItem cartItem : cartItems) {
                 gameIds.add(cartItem.getGameId());
             }
-
             getGamesById(gameIds, data -> {
-                // 🛑 THE SHIELD
                 if (!isAdded() || binding == null) return;
-
                 subTotal = 0;
                 int itemCount = 0;
-
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
-
                     if (game != null) {
                         subTotal += game.getPrice() * cartItem.getQty();
                         itemCount += cartItem.getQty();
                     }
                 }
-
                 binding.checkoutItemCount.setText(String.valueOf(itemCount));
                 binding.checkoutTotalAmount.setText(String.format(Locale.US, "LKR %,.2f", subTotal));
                 paymentActive = true;
             });
         });
-
         binding.btnConfirmOrder.setOnClickListener(v -> {
             if (validateInputs() && paymentActive) {
                 InitRequest req = new InitRequest();
                 req.setSandBox(true);
-
                 req.setMerchantId("1230668");
                 req.setMerchantSecret("ODg0MTAxMTEyNzI4MzQwMDE1MzkyMjk5NDQzNTg4NjMwMjAx");
                 req.setCurrency("LKR");
                 req.setAmount(subTotal);
                 req.setOrderId("GVOD 001");
                 req.setItemsDescription("Game Purchase");
-
                 req.getCustomer().setFirstName(binding.checkoutInputFullName.getText().toString());
                 req.getCustomer().setLastName(binding.checkoutInputFullName.getText().toString());
                 req.getCustomer().setEmail(binding.checkoutInputEmail.getText().toString());
@@ -124,77 +96,56 @@ public class CheckoutFragment extends Fragment {
                 req.getCustomer().getAddress().setAddress(binding.checkoutInputAddressLine1.getText().toString());
                 req.getCustomer().getAddress().setCity(binding.checkoutInputCity.getText().toString());
                 req.getCustomer().getAddress().setCountry("Sri Lanka");
-
                 Intent intent = new Intent(getActivity(), PHMainActivity.class);
                 intent.putExtra(PHConstants.INTENT_EXTRA_DATA, req);
-
                 payhereLauncher.launch(intent);
             }
         });
     }
-
     private void getCartItems(FireStoreCallback<List<CartItem>> callback) {
-
         String uid = firebaseAuth.getCurrentUser().getUid();
-
         db.collection("users").document(uid).collection("cart")
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot qds) {
                         if (!qds.isEmpty()) {
-
                             List<CartItem> cartItems = qds.toObjects(CartItem.class);
                             callback.onCallback(cartItems);
-
                         }
                     }
                 });
     }
-
     private void getGamesById(List<String> gameIds, FireStoreCallback<Map<String, Game>> callback) {
-
         Map<String, Game> games = new HashMap<>();
-
         if (gameIds == null || gameIds.isEmpty()) {
             callback.onCallback(games);
             return;
         }
-
-
         db.collection("games")
                 .whereIn("gameId", gameIds)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot qds) {
-
                         qds.getDocuments().forEach(ds -> {
                             Game game = ds.toObject(Game.class);
                             if (game != null) {
                                 games.put(game.getGameId(), game);
                             }
                         });
-
                         callback.onCallback(games);
-
                     }
                 });
-
     }
-
     private final ActivityResultLauncher<Intent> payhereLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-
                     Intent data = result.getData();
                     if (data.hasExtra(PHConstants.INTENT_EXTRA_RESULT)) {
                         PHResponse<StatusResponse> response =
                                 (PHResponse<StatusResponse>) data.getSerializableExtra(PHConstants.INTENT_EXTRA_RESULT);
-
                         if (response != null && response.isSuccess()) {
                             StatusResponse statusResponse = response.getData();
-
                             saveOrder(statusResponse, "PAID");
                             Log.i("PayHere", "Payment Successful");
                             Toast.makeText(getContext(), "Payment Successful!", Toast.LENGTH_SHORT).show();
@@ -204,27 +155,21 @@ public class CheckoutFragment extends Fragment {
                             Toast.makeText(getContext(), "Payment Failed or Cancelled.", Toast.LENGTH_SHORT).show();
                         }
                     }
-
                 } else {
                     saveCancelledOrder();
                     Toast.makeText(getContext(), "Payment Failed!", Toast.LENGTH_SHORT).show();
                 }
             });
-
     private void saveOrder(StatusResponse statusResponse, String status) {
         getCartItems(cartItems -> {
-            // 🛑 THE SHIELD
             if (!isAdded() || binding == null) return;
-
             String uid = firebaseAuth.getCurrentUser().getUid();
-
             Order order = new Order();
             order.setOrderId(String.valueOf(System.currentTimeMillis()));
             order.setUserId(uid);
             order.setTotalAmount(subTotal);
             order.setStatus(status);
             order.setOrderDate(Timestamp.now().toDate().getTime());
-
             String name = binding.checkoutInputFullName.getText().toString();
             String email = binding.checkoutInputEmail.getText().toString();
             String phone = binding.checkoutInputPhone.getText().toString();
@@ -232,7 +177,6 @@ public class CheckoutFragment extends Fragment {
             String addressLine2 = binding.checkoutInputAddressLine2.getText().toString();
             String city = binding.checkoutInputCity.getText().toString();
             String postalCode = binding.checkoutInputPostalCode.getText().toString();
-
             Order.Address billingAddress = Order.Address.builder()
                     .fullName(name)
                     .email(email)
@@ -241,20 +185,14 @@ public class CheckoutFragment extends Fragment {
                     .addressLine2(addressLine2)
                     .city(city)
                     .postalCode(postalCode).build();
-
             order.setBillingAddress(billingAddress);
-
             ArrayList<String> gameIds = new ArrayList<>();
             for (CartItem cartItem : cartItems) {
                 gameIds.add(cartItem.getGameId());
             }
-
             getGamesById(gameIds, data -> {
-                // 🛑 THE SHIELD
                 if (!isAdded() || binding == null) return;
-
                 List<Order.OrderItem> orderItems = new ArrayList<>();
-
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
                     if (game != null) {
@@ -268,53 +206,40 @@ public class CheckoutFragment extends Fragment {
                                 attributes.add(attribute);
                             }
                         }
-
                         Order.OrderItem orderItem = Order.OrderItem.builder()
                                 .gameId(cartItem.getGameId())
                                 .unitPrice(game.getPrice())
                                 .qty(cartItem.getQty())
                                 .attributes(attributes)
                                 .build();
-
                         orderItems.add(orderItem);
                     }
                 }
-
                 order.setOrderItems(orderItems);
-
                 db.collection("orders")
                         .document(order.getOrderId())
                         .set(order)
                         .addOnSuccessListener(aVoid -> {
-                            // 🛑 THE SHIELD
                             if (!isAdded() || binding == null) return;
-
                             if (getContext() != null) {
                                 Toast.makeText(getContext(), "Order Placed Successfully!", Toast.LENGTH_SHORT).show();
                             }
-
                             WriteBatch batch = db.batch();
-
                             for (CartItem item : cartItems) {
                                 Map<String, Object> libraryData = new HashMap<>();
                                 libraryData.put("gameId", item.getGameId());
                                 libraryData.put("purchaseDate", order.getOrderDate());
-
                                 batch.set(db.collection("users").document(uid)
                                         .collection("library").document(item.getGameId()), libraryData);
                             }
-
                             db.collection("users").document(uid).collection("cart")
                                     .get()
                                     .addOnSuccessListener(qsd -> {
                                         for (DocumentSnapshot ds : qsd.getDocuments()) {
                                             batch.delete(ds.getReference());
                                         }
-
                                         batch.commit().addOnSuccessListener(unused -> {
-                                            // 🛑 THE SHIELD
                                             if (!isAdded() || binding == null) return;
-
                                             getParentFragmentManager().beginTransaction()
                                                     .replace(R.id.fragmentContainer, new ShopFragment())
                                                     .commit();
@@ -324,24 +249,17 @@ public class CheckoutFragment extends Fragment {
             });
         });
     }
-
-
     private void saveCancelledOrder() {
         if (firebaseAuth.getCurrentUser() == null) return;
-
         getCartItems(cartItems -> {
-            // 🛑 THE SHIELD
             if (!isAdded() || binding == null) return;
-
             String uid = firebaseAuth.getCurrentUser().getUid();
-
             Order order = new Order();
             order.setOrderId(String.valueOf(System.currentTimeMillis()));
             order.setUserId(uid);
             order.setTotalAmount(subTotal);
             order.setStatus("CANCELLED");
             order.setOrderDate(Timestamp.now().toDate().getTime());
-
             String name = binding.checkoutInputFullName.getText().toString();
             String email = binding.checkoutInputEmail.getText().toString();
             String phone = binding.checkoutInputPhone.getText().toString();
@@ -349,7 +267,6 @@ public class CheckoutFragment extends Fragment {
             String addressLine2 = binding.checkoutInputAddressLine2.getText().toString();
             String city = binding.checkoutInputCity.getText().toString();
             String postalCode = binding.checkoutInputPostalCode.getText().toString();
-
             Order.Address billingAddress = Order.Address.builder()
                     .fullName(name)
                     .email(email)
@@ -358,24 +275,17 @@ public class CheckoutFragment extends Fragment {
                     .addressLine2(addressLine2)
                     .city(city)
                     .postalCode(postalCode).build();
-
             order.setBillingAddress(billingAddress);
-
             ArrayList<String> gameIds = new ArrayList<>();
             for (CartItem cartItem : cartItems) {
                 gameIds.add(cartItem.getGameId());
             }
-
             getGamesById(gameIds, data -> {
-                // 🛑 THE SHIELD
                 if (!isAdded() || binding == null) return;
-
                 List<Order.OrderItem> orderItems = new ArrayList<>();
-
                 for (CartItem cartItem : cartItems) {
                     Game game = data.get(cartItem.getGameId());
                     if (game != null) {
-
                         List<Order.OrderItem.Attribute> attributes = new ArrayList<>();
                         if (cartItem.getAttributes() != null) {
                             for (CartItem.Attribute at : cartItem.getAttributes()) {
@@ -386,27 +296,21 @@ public class CheckoutFragment extends Fragment {
                                 attributes.add(attribute);
                             }
                         }
-
                         Order.OrderItem orderItem = Order.OrderItem.builder()
                                 .gameId(cartItem.getGameId())
                                 .unitPrice(game.getPrice())
                                 .qty(cartItem.getQty())
                                 .attributes(attributes)
                                 .build();
-
                         orderItems.add(orderItem);
                     }
                 }
-
                 order.setOrderItems(orderItems);
-
                 db.collection("orders")
                         .document(order.getOrderId())
                         .set(order)
                         .addOnSuccessListener(aVoid -> {
-                            // 🛑 THE SHIELD
                             if (!isAdded() || binding == null) return;
-
                             Log.i("PayHere", "Cancelled order saved.");
                             getParentFragmentManager().beginTransaction()
                                     .replace(R.id.fragmentContainer, new ShopFragment())
@@ -415,17 +319,14 @@ public class CheckoutFragment extends Fragment {
             });
         });
     }
-
     private boolean validateInputs() {
         boolean isValid = true;
-
         String name = binding.checkoutInputFullName.getText().toString().trim();
         String email = binding.checkoutInputEmail.getText().toString().trim();
         String phone = binding.checkoutInputPhone.getText().toString().trim();
         String address = binding.checkoutInputAddressLine1.getText().toString().trim();
         String city = binding.checkoutInputCity.getText().toString().trim();
         String postalCode = binding.checkoutInputPostalCode.getText().toString().trim();
-
         if (name.isEmpty()) {
             binding.checkoutInputFullName.setError("Full Name is required");
             isValid = false;
@@ -450,49 +351,36 @@ public class CheckoutFragment extends Fragment {
             binding.checkoutInputPostalCode.setError("Postal Code is required");
             isValid = false;
         }
-
         return isValid;
     }
-
     private void loadUserData() {
         if (firebaseAuth.getCurrentUser() == null) return;
         String uid = firebaseAuth.getCurrentUser().getUid();
-
         binding.checkoutInputEmail.setText(firebaseAuth.getCurrentUser().getEmail());
-
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && binding != null) {
-
                         String name = documentSnapshot.getString("name");
                         if (name != null) binding.checkoutInputFullName.setText(name);
-
                         String email = documentSnapshot.getString("email");
                         if (email != null && !email.isEmpty()) binding.checkoutInputEmail.setText(email);
-
                         String phone = documentSnapshot.getString("phone");
                         if (phone != null) binding.checkoutInputPhone.setText(phone);
-
                         String address1 = documentSnapshot.getString("addressLine1");
                         if (address1 != null) binding.checkoutInputAddressLine1.setText(address1);
-
                         String address2 = documentSnapshot.getString("addressLine2");
                         if (address2 != null) binding.checkoutInputAddressLine2.setText(address2);
-
                         String city = documentSnapshot.getString("city");
                         if (city != null) binding.checkoutInputCity.setText(city);
-
                         String postalCode = documentSnapshot.getString("postalCode");
                         if (postalCode != null) binding.checkoutInputPostalCode.setText(postalCode);
                     }
                 })
                 .addOnFailureListener(e -> Log.e("Checkout", "Failed to load user data for autofill"));
     }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
-
 }

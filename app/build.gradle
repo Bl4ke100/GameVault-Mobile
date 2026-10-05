@@ -44,7 +44,6 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // Third-party & Firebase
     implementation libs.picasso
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.analytics
@@ -52,13 +51,14 @@ dependencies {
     implementation libs.firebase.firestore
     implementation libs.firebase.storage
     implementation libs.glide
+    implementation 'com.firebaseui:firebase-ui-storage:8.0.2'
     implementation libs.dotsindicator
     implementation libs.payhere.android.sdk
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation libs.play.services.maps
     implementation 'com.google.firebase:firebase-messaging:23.4.1'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
-    // Lombok
     compileOnly libs.lombok
     annotationProcessor libs.lombok
 

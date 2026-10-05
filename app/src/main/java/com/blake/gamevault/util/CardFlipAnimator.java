@@ -1,5 +1,4 @@
 package com.blake.gamevault.util;
-
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.view.MotionEvent;
@@ -7,12 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
-
 public class CardFlipAnimator {
-
     private static final int DURATION_IN = 200;
     private static final int DURATION_OUT = 250;
-
     public static void attach(View card, Runnable onClick) {
         card.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
@@ -29,13 +25,11 @@ public class CardFlipAnimator {
             return true;
         });
     }
-
     private static void animateLift(View v) {
         v.bringToFront();
         if (v.getParent() instanceof ViewGroup) {
             ((ViewGroup) v.getParent()).invalidate();
         }
-
         AnimatorSet set = new AnimatorSet();
         set.playTogether(
                 ObjectAnimator.ofFloat(v, "scaleX", 1f, 1.15f),
@@ -47,9 +41,7 @@ public class CardFlipAnimator {
         set.setDuration(DURATION_IN);
         set.setInterpolator(new AccelerateDecelerateInterpolator());
         set.start();
-
     }
-
     private static void animateDrop(View v, Runnable onClick) {
         AnimatorSet set = new AnimatorSet();
         set.playTogether(
@@ -61,8 +53,6 @@ public class CardFlipAnimator {
         set.setDuration(DURATION_OUT);
         set.setInterpolator(new OvershootInterpolator(1.5f));
         set.start();
-
-
         if (onClick != null) {
             set.addListener(new android.animation.AnimatorListenerAdapter() {
                 @Override
@@ -72,6 +62,4 @@ public class CardFlipAnimator {
             });
         }
     }
-
-
 }

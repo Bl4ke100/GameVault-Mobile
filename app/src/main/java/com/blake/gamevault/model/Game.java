@@ -1,12 +1,9 @@
 package com.blake.gamevault.model;
-
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -26,16 +23,13 @@ public class Game {
     private boolean status;
     private float rating;
     private List<Attribute> attributes;
-
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Attribute{
-
         private String  name;
         private String type;
         private List<String> values;
-
     }
 }

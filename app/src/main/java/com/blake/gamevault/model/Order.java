@@ -1,12 +1,9 @@
 package com.blake.gamevault.model;
-
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -19,8 +16,6 @@ public class Order {
     private long orderDate;
     private  List<OrderItem> orderItems;
     private Address billingAddress;
-
-
     @Data
     @Builder
     @AllArgsConstructor
@@ -30,7 +25,6 @@ public class Order {
         private double unitPrice;
         private int qty;
         private List<OrderItem.Attribute> attributes;
-
         @Data
         @Builder
         @AllArgsConstructor
@@ -40,13 +34,11 @@ public class Order {
             private String value;
         }
     }
-
     @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Address {
-
         private String fullName;
         private String email;
         private String phoneNumber;
@@ -54,7 +46,5 @@ public class Order {
         private String addressLine2;
         private String city;
         private String postalCode;
-
     }
-
 }
