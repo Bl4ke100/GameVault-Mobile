@@ -225,7 +225,12 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onLost(@NonNull Network network) {
-                showOfflineDialog();
+                Network activeNetwork = connectivityManager.getActiveNetwork();
+                NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(activeNetwork);
+                boolean isConnected = caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                if (!isConnected) {
+                    showOfflineDialog();
+                }
             }
         };
         NetworkRequest networkRequest = new NetworkRequest.Builder()
