@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private BottomNavigationView bottomNavigationView;
     private FirebaseAuth firebaseAuth;
+    private Uri cameraImageUri = null;
     private FirebaseFirestore firebaseFirestore;
     EditText searchTextInput;
     @Override
@@ -142,10 +143,20 @@ public class MainActivity extends AppCompatActivity
             navigationView.getMenu().findItem(R.id.side_nav_login).setVisible(false);
             navigationView.getMenu().findItem(R.id.side_nav_logout).setVisible(true);
             sideNavHeaderBinding.headerPfp.setOnClickListener(v -> {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                activityResultLauncher.launch(intent);
+                Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("image/*");
+
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                java.io.File imagePath = new java.io.File(getCacheDir(), "images");
+                imagePath.mkdirs();
+                java.io.File newFile = new java.io.File(imagePath, "profile_pic.jpg");
+                cameraImageUri = androidx.core.content.FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".fileprovider", newFile);
+                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraImageUri);
+
+                Intent chooser = Intent.createChooser(galleryIntent, "Select or Take a Picture");
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { cameraIntent });
+                
+                activityResultLauncher.launch(chooser);
             });
         }
         searchTextInput = binding.searchTextInput;

@@ -26,11 +26,18 @@ public class ProfileFragment extends Fragment {
     private FragmentProfileBinding binding;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private Uri cameraImageUri = null;
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri uri = result.getData().getData();
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Uri uri = null;
+                    if (result.getData() != null && result.getData().getData() != null) {
+                        uri = result.getData().getData();
+                    } else if (cameraImageUri != null) {
+                        uri = cameraImageUri;
+                    }
+                    if (uri != null) {
                     if (getContext() != null && binding != null) {
                         com.blake.gamevault.GlideApp.with(getContext())
                                 .load(uri)
@@ -58,6 +65,7 @@ public class ProfileFragment extends Fragment {
                                     Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
                                 }
                             });
+                    }
                 }
             }
     );
@@ -126,10 +134,20 @@ public class ProfileFragment extends Fragment {
     }
     private void setupClickListeners() {
         binding.btnEditPhoto.setOnClickListener(v -> {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            imagePickerLauncher.launch(intent);
+            Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            galleryIntent.setType("image/*");
+
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            java.io.File imagePath = new java.io.File(requireContext().getCacheDir(), "images");
+            imagePath.mkdirs();
+            java.io.File newFile = new java.io.File(imagePath, "profile_pic.jpg");
+            cameraImageUri = androidx.core.content.FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", newFile);
+            cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraImageUri);
+
+            Intent chooser = Intent.createChooser(galleryIntent, "Select or Take a Picture");
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { cameraIntent });
+            
+            imagePickerLauncher.launch(chooser);
         });
         binding.btnEditProfile.setOnClickListener(v -> {
             getParentFragmentManager().beginTransaction()
