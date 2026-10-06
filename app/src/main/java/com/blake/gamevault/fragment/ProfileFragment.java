@@ -42,6 +42,8 @@ public class ProfileFragment extends Fragment {
                         com.blake.gamevault.GlideApp.with(getContext())
                                 .load(uri)
                                 .placeholder(R.drawable.person)
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                                 .circleCrop()
                                 .into(binding.profileImage);
                         if (getActivity() instanceof com.blake.gamevault.activity.MainActivity) {
@@ -143,7 +145,7 @@ public class ProfileFragment extends Fragment {
             Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             java.io.File imagePath = new java.io.File(requireContext().getCacheDir(), "images");
             imagePath.mkdirs();
-            java.io.File newFile = new java.io.File(imagePath, "profile_pic.jpg");
+            java.io.File newFile = new java.io.File(imagePath, "profile_pic_" + System.currentTimeMillis() + ".jpg");
             cameraImageUri = androidx.core.content.FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", newFile);
             cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraImageUri);
 

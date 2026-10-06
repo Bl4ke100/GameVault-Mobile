@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 java.io.File imagePath = new java.io.File(getCacheDir(), "images");
                 imagePath.mkdirs();
-                java.io.File newFile = new java.io.File(imagePath, "profile_pic.jpg");
+                java.io.File newFile = new java.io.File(imagePath, "profile_pic_" + System.currentTimeMillis() + ".jpg");
                 cameraImageUri = androidx.core.content.FileProvider.getUriForFile(MainActivity.this, getPackageName() + ".fileprovider", newFile);
                 cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraImageUri);
 
@@ -321,6 +321,8 @@ public class MainActivity extends AppCompatActivity
         if (sideNavHeaderBinding != null) {
             com.blake.gamevault.GlideApp.with(this)
                     .load(uri)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
                     .circleCrop()
                     .into(sideNavHeaderBinding.headerPfp);
         }
