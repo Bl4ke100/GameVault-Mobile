@@ -281,7 +281,13 @@ public class MainActivity extends AppCompatActivity
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
-                    Uri uri = result.getData().getData();
+                    Uri uri = null;
+                    if (result.getData() != null && result.getData().getData() != null) {
+                        uri = result.getData().getData();
+                    } else if (cameraImageUri != null) {
+                        uri = cameraImageUri;
+                    }
+                    if (uri != null) {
                     Log.i("MainActivity", "Image URI:" + uri.getPath());
                     com.blake.gamevault.GlideApp.with(MainActivity.this)
                             .load(uri)
@@ -299,9 +305,19 @@ public class MainActivity extends AppCompatActivity
                                             Toast.makeText(MainActivity.this, "Profile Picture Updated", Toast.LENGTH_SHORT).show();
                                         });
                             });
+                    }
                 }
             }
     );
+        public void updateNavHeaderImage(Uri uri) {
+        if (sideNavHeaderBinding != null) {
+            com.blake.gamevault.GlideApp.with(this)
+                    .load(uri)
+                    .circleCrop()
+                    .into(sideNavHeaderBinding.headerPfp);
+        }
+    }
+
     private void setStatusBarColor() {
         int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
         androidx.core.view.WindowInsetsControllerCompat windowController =

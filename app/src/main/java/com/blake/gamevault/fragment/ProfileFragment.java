@@ -44,6 +44,9 @@ public class ProfileFragment extends Fragment {
                                 .placeholder(R.drawable.person)
                                 .circleCrop()
                                 .into(binding.profileImage);
+                        if (getActivity() instanceof com.blake.gamevault.activity.MainActivity) {
+                            ((com.blake.gamevault.activity.MainActivity) getActivity()).updateNavHeaderImage(uri);
+                        }
                     }
                     String imageId = UUID.randomUUID().toString();
                     FirebaseStorage storage = FirebaseStorage.getInstance();
