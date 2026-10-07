@@ -35,7 +35,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
         ImageView imageView = findViewById(R.id.splashLogo);
         Picasso.get()
-                .load(R.mipmap.gv_launcher_foreground)
+                .load(R.drawable.gv_logo)
                 .resize(300, 300)
                 .into(imageView);
         new Handler(Looper.getMainLooper())
