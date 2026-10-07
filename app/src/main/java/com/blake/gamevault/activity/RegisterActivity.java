@@ -37,7 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
         });
-                binding.btnCreateAccount.setOnClickListener(View -> {
+                        binding.btnCreateAccount.setOnClickListener(View -> {
             String username = binding.username.getText().toString().trim();
             String email = binding.email.getText().toString().trim();
             String password = binding.password.getText().toString().trim();
@@ -88,19 +88,25 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
             
-            // 1. Check if Username exists
-            firebaseFirestore.collection("users").whereEqualTo("username", username).get().addOnCompleteListener(usernameTask -> {
-                if (usernameTask.isSuccessful() && !usernameTask.getResult().isEmpty()) {
-                    binding.username.setError("Username already exists");
-                    binding.username.requestFocus();
-                } else {
-                    // 2. Create Account (Email uniqueness is handled by Firebase Auth)
-                    firebaseAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        String uid = task.getResult().getUser().getUid();
+            // 1. Create Account First (Handles email uniqueness, and logs us in to bypass Firestore read rules)
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                FirebaseUser firebaseUser = task.getResult().getUser();
+                                String uid = firebaseUser.getUid();
+                                
+                                // 2. Now that we are authenticated, we can safely query the users collection
+                                firebaseFirestore.collection("users").whereEqualTo("username", username).get().addOnCompleteListener(usernameTask -> {
+                                    if (usernameTask.isSuccessful() && !usernameTask.getResult().isEmpty()) {
+                                        // Username is taken! Delete the newly created auth account to revert
+                                        firebaseUser.delete().addOnCompleteListener(deleteTask -> {
+                                            binding.username.setError("Username already exists");
+                                            binding.username.requestFocus();
+                                        });
+                                    } else {
+                                        // Username is unique! Save profile.
                                         User user = User.builder()
                                                 .uid(uid)
                                                 .username(username)
@@ -115,7 +121,6 @@ public class RegisterActivity extends AppCompatActivity {
                                                         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                                                         intent.putExtra("email", email);
                                                         intent.putExtra("password", password);
-                                                        // Prevent duplicate LoginActivity on back stack if it exists
                                                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                                         startActivity(intent);
                                                         finish();
@@ -123,24 +128,24 @@ public class RegisterActivity extends AppCompatActivity {
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
                                                     public void onFailure(@NonNull Exception e) {
-                                                        Toast.makeText(getApplicationContext(),"Registration Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getApplicationContext(),"Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
-                                    } else {
-                                        // Auth Failed (e.g., email already in use)
-                                        try {
-                                            throw task.getException();
-                                        } catch (com.google.firebase.auth.FirebaseAuthUserCollisionException e) {
-                                            binding.email.setError("Email already registered");
-                                            binding.email.requestFocus();
-                                        } catch (Exception e) {
-                                            Toast.makeText(getApplicationContext(), "Registration Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
                                     }
+                                });
+                            } else {
+                                // Auth Failed (e.g., email already in use)
+                                try {
+                                    throw task.getException();
+                                } catch (com.google.firebase.auth.FirebaseAuthUserCollisionException e) {
+                                    binding.email.setError("Email already registered");
+                                    binding.email.requestFocus();
+                                } catch (Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Registration Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                }
-            });
+                            }
+                        }
+                    });
         });
     }
     private boolean isPasswordValid(String password) {
