@@ -151,9 +151,8 @@
             android:layout_weight="1"
             android:background="?attr/colorOutlineVariant" />
 
-            </LinearLayout>
-</ScrollView>
-</ScrollView>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -179,8 +178,6 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-            </LinearLayout>
-</ScrollView>
-</ScrollView>
     </LinearLayout>
+
 </ScrollView>
