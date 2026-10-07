@@ -22,7 +22,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="20dp"
         android:textSize="15sp"
-        android:textColor="@color/surface_dark"
+        android:textColor="?android:attr/textColorPrimary"
     />
 
     <ProgressBar
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="100dp"
-        android:indeterminateTint="@color/surface_dark"
+        android:indeterminateTint="?android:attr/textColorPrimary"
         android:visibility="invisible"
     />
 
