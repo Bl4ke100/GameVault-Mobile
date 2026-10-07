@@ -236,18 +236,18 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onLost(@NonNull Network network) {
-                Network activeNetwork = connectivityManager.getActiveNetwork();
-                NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(activeNetwork);
-                boolean isConnected = caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-                if (!isConnected) {
-                    showOfflineDialog();
-                }
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    Network activeNetwork = connectivityManager.getActiveNetwork();
+                    NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(activeNetwork);
+                    boolean isConnected = caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                    if (!isConnected) {
+                        showOfflineDialog();
+                    }
+                }, 1000);
             }
         };
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build();
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+        connectivityManager.registerDefaultNetworkCallback(networkCallback);
 
         Network activeNetwork = connectivityManager.getActiveNetwork();
         NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(activeNetwork);
