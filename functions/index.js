@@ -5,17 +5,14 @@ const {getMessaging} = require("firebase-admin/messaging");
 
 initializeApp();
 
-// We watch the top-level "orders" collection
 exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (event) => {
     
-    // This is the actual data from your screenshot
     const orderData = event.data.data();
     
-    // We grab the "userId" field from INSIDE the document
     const userId = orderData.userId; 
 
     try {
-        // 1. Look up the user's "fcmToken" using that userId
+        
         const userDoc = await getFirestore().collection("users").doc(userId).get();
         const userData = userDoc.data();
 
@@ -33,14 +30,13 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
             },
             android: {
                 notification: {
-                    channelId: "gamevault_orders", // MUST match your Java code exactly
+                    channelId: "gamevault_orders", 
                     priority: "high"
                 }
             },
             token: fcmToken
         };
 
-        // 3. Send it to their phone
         const response = await getMessaging().send(message);
         console.log("Successfully sent message:", response);
 
@@ -49,7 +45,6 @@ exports.sendOrderNotification = onDocumentCreated("orders/{orderId}", async (eve
     }
 });
 
-// Broadcast Notifications to All Users
 exports.sendBroadcastNotification = onDocumentCreated(
   "broadcasts/{broadcastId}",
   async (event) => {
@@ -72,7 +67,6 @@ exports.sendBroadcastNotification = onDocumentCreated(
         return;
       }
 
-      // Deduplicate tokens if multiple users logged in on the same physical device
       const uniqueTokens = [...new Set(tokens)];
 
       let successCount = 0;

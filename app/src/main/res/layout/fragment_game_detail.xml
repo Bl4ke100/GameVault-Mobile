@@ -494,8 +494,6 @@
             app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="1.5dp" />
 
-
-
     </LinearLayout>
 
 </RelativeLayout>

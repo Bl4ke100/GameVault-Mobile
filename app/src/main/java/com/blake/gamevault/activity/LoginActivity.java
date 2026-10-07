@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent); // Update the activity's intent
+        setIntent(intent); 
         if (intent.hasExtra("email")) {
             binding.emailInput.setText(intent.getStringExtra("email"));
             binding.pwInput.setText(intent.getStringExtra("password"));

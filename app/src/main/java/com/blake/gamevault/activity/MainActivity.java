@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity
                                         .update("profilePicUrl", imageId)
                                         .addOnSuccessListener(aVoid -> {
                                             Toast.makeText(MainActivity.this, "Profile Picture Updated", Toast.LENGTH_SHORT).show();
-                                            // If ProfileFragment is currently active, force it to reload the image
+                                            
                                             androidx.fragment.app.Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
                                             if (currentFragment instanceof com.blake.gamevault.fragment.ProfileFragment) {
                                                 getSupportFragmentManager().beginTransaction()

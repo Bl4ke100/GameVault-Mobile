@@ -11,12 +11,10 @@
     android:paddingTop="64dp"
     android:paddingBottom="40dp">
 
-    <!-- Logo Placeholder -->
     <FrameLayout
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_marginBottom="28dp">
-
 
         <ImageView
             android:id="@+id/ivLogo"
@@ -28,7 +26,6 @@
 
     </FrameLayout>
 
-    <!-- App Name -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,7 +36,6 @@
         android:textColor="?attr/colorOnSurface"
         android:textSize="32sp" />
 
-    <!-- Subtitle -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,7 +44,6 @@
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="14sp" />
 
-    <!-- Email Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilEmail"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -73,7 +68,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPassword"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -99,7 +93,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Forgot Password -->
     <TextView
         android:id="@+id/tvForgotPassword"
         android:layout_width="wrap_content"
@@ -115,7 +108,6 @@
         android:textColor="?attr/colorPrimary"
         android:textSize="13sp" />
 
-    <!-- Sign In Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSignIn"
         style="@style/Widget.Material3.Button"
@@ -127,7 +119,6 @@
         android:textSize="15sp"
         app:cornerRadius="10dp" />
 
-    <!-- Divider -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -157,9 +148,6 @@
 
     </LinearLayout>
 
-    <!-- Social Buttons Row -->
-
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -187,6 +175,4 @@
 
     </LinearLayout>
 
-
 </LinearLayout>
-

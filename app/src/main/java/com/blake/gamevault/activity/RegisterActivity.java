@@ -88,7 +88,6 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
             
-            // 1. Create Account First (Handles email uniqueness, and logs us in to bypass Firestore read rules)
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
@@ -97,16 +96,15 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseUser firebaseUser = task.getResult().getUser();
                                 String uid = firebaseUser.getUid();
                                 
-                                // 2. Now that we are authenticated, we can safely query the users collection
                                 firebaseFirestore.collection("users").whereEqualTo("username", username).get().addOnCompleteListener(usernameTask -> {
                                     if (usernameTask.isSuccessful() && !usernameTask.getResult().isEmpty()) {
-                                        // Username is taken! Delete the newly created auth account to revert
+                                        
                                         firebaseUser.delete().addOnCompleteListener(deleteTask -> {
                                             binding.username.setError("Username already exists");
                                             binding.username.requestFocus();
                                         });
                                     } else {
-                                        // Username is unique! Save profile.
+                                        
                                         User user = User.builder()
                                                 .uid(uid)
                                                 .username(username)
@@ -134,7 +132,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     }
                                 });
                             } else {
-                                // Auth Failed (e.g., email already in use)
+                                
                                 try {
                                     throw task.getException();
                                 } catch (com.google.firebase.auth.FirebaseAuthUserCollisionException e) {

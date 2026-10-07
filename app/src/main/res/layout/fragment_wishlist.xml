@@ -6,7 +6,6 @@
     android:background="?android:attr/windowBackground"
     android:orientation="vertical">
 
-
     <LinearLayout
         android:id="@+id/favEmptyState"
         android:layout_width="match_parent"
