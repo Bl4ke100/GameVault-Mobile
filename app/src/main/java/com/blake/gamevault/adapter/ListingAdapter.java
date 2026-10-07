@@ -35,7 +35,7 @@ public class ListingAdapter extends RecyclerView.Adapter<ListingAdapter.ViewHold
     public void onBindViewHolder(@NonNull ListingAdapter.ViewHolder holder, int position) {
         Game game = games.get(position);
         holder.gameTitle.setText(game.getTitle());
-        holder.gamePrice.setText("LKR " + game.getPrice() + "0");
+        holder.gamePrice.setText(String.format("LKR %.2f", game.getPrice()));
         com.blake.gamevault.GlideApp.with(holder.itemView.getContext()).clear(holder.gameImage);
         holder.gameImage.setImageResource(R.drawable.placeholder_game);
         holder.resetPosition();
