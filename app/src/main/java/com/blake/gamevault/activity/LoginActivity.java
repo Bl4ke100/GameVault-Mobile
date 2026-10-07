@@ -72,6 +72,15 @@ public class LoginActivity extends AppCompatActivity {
                     });
         });
     }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent); // Update the activity's intent
+        if (intent.hasExtra("email")) {
+            binding.emailInput.setText(intent.getStringExtra("email"));
+            binding.pwInput.setText(intent.getStringExtra("password"));
+        }
+    }
     private void updateUI(FirebaseUser user) {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
